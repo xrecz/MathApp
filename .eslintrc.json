@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "env": { "browser": true, "es2022": true },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "project": "./tsconfig.json", "ecmaVersion": 2022, "sourceType": "module" },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-restricted-globals": [
+      "error",
+      { "name": "fetch", "message": "Keine externen Netzwerk-Requests erlaubt. Nur in service-worker.ts." }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off"
+  },
+  "overrides": [
+    {
+      "files": ["src/sw.ts"],
+      "rules": { "no-restricted-globals": "off" }
+    }
+  ]
+}
