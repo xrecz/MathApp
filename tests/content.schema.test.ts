@@ -29,6 +29,16 @@ import { eigenwerteEigenvektoren } from '../src/content/phase1/linalg/09-eigenwe
 import { spektraltheorem } from '../src/content/phase1/linalg/10-spektraltheorem'
 import { svd } from '../src/content/phase1/linalg/11-svd'
 import { tensorenMlBruecke } from '../src/content/phase1/linalg/12-tensoren-ml-bruecke'
+import { grenzwerte } from '../src/content/phase1/calculus/01-grenzwerte'
+import { ableitungKonzept } from '../src/content/phase1/calculus/02-ableitung-konzept'
+import { ableitungsregeln } from '../src/content/phase1/calculus/03-ableitungsregeln'
+import { kettenregel } from '../src/content/phase1/calculus/04-kettenregel'
+import { mlAbleitungen } from '../src/content/phase1/calculus/05-ml-ableitungen'
+import { extremaTaylor } from '../src/content/phase1/calculus/06-extrema-taylor'
+import { multivariableFunktionen } from '../src/content/phase1/calculus/07-multivariable-funktionen'
+import { partielleAbleitungenGradient } from '../src/content/phase1/calculus/08-partielle-ableitungen-gradient'
+import { multivariateKettenregelBackprop } from '../src/content/phase1/calculus/09-multivariate-kettenregel-backprop'
+import { jacobiHesse } from '../src/content/phase1/calculus/10-jacobi-hesse'
 import type { Lesson, Exercise } from '../src/types'
 
 const phase0Lessons: Lesson[] = [
@@ -67,7 +77,20 @@ const phase1LinalgLessons: Lesson[] = [
   tensorenMlBruecke,
 ]
 
-const lessons: Lesson[] = [...phase0Lessons, ...phase1LinalgLessons]
+const phase1CalculusLessons: Lesson[] = [
+  grenzwerte,
+  ableitungKonzept,
+  ableitungsregeln,
+  kettenregel,
+  mlAbleitungen,
+  extremaTaylor,
+  multivariableFunktionen,
+  partielleAbleitungenGradient,
+  multivariateKettenregelBackprop,
+  jacobiHesse,
+]
+
+const lessons: Lesson[] = [...phase0Lessons, ...phase1LinalgLessons, ...phase1CalculusLessons]
 
 function validateLesson(lesson: Lesson): string[] {
   const errors: string[] = []
@@ -117,8 +140,12 @@ describe('Content Schema Validation', () => {
     expect(phase1LinalgLessons).toHaveLength(12)
   })
 
-  it('30 total lessons are registered', () => {
-    expect(lessons).toHaveLength(30)
+  it('10 phase-1 calculus lessons are registered', () => {
+    expect(phase1CalculusLessons).toHaveLength(10)
+  })
+
+  it('40 total lessons are registered', () => {
+    expect(lessons).toHaveLength(40)
   })
 
   lessons.forEach(lesson => {
