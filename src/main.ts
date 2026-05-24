@@ -53,8 +53,8 @@ async function checkBackupReminder(): Promise<void> {
   banner.className = [
     'fixed top-0 left-0 right-0 z-40',
     'bg-orange-900/90 border-b border-orange-500/40',
-    'px-4 py-2 flex items-center justify-between gap-3',
-    'text-sm text-orange-200',
+    'px-4 flex items-center justify-between gap-3',
+    'text-sm text-orange-200 safe-top-banner',
   ].join(' ')
   banner.innerHTML = `
     <span>⚠ Letztes Backup: ${Number.isFinite(days) ? `vor ${days} Tagen` : 'noch nie'}</span>
@@ -82,8 +82,8 @@ function setupSWUpdateNotification(): void {
     const banner = document.createElement('div')
     banner.className = [
       'fixed top-0 left-0 right-0 z-50',
-      'bg-brand-700 text-white px-4 py-2',
-      'flex items-center justify-between gap-3 text-sm',
+      'bg-brand-700 text-white px-4',
+      'flex items-center justify-between gap-3 text-sm safe-top-banner',
     ].join(' ')
     banner.innerHTML = `
       <span>🔄 Neue Version verfügbar.</span>

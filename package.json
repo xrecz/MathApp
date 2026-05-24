@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src tests --ext .ts"
   },
@@ -18,8 +19,9 @@
     "ts-fsrs": "^5.3.2"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
+    "@playwright/test": "^1.60.0",
     "@types/katex": "^0.16.7",
+    "@types/node": "^20.14.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "autoprefixer": "^10.4.19",
@@ -29,7 +31,6 @@
     "typescript": "^5.4.5",
     "vite": "^5.3.1",
     "vite-plugin-pwa": "^0.20.1",
-    "vite-plugin-static-copy": "^1.0.5",
     "vitest": "^1.6.0"
   }
 }

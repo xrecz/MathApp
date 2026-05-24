@@ -1,4 +1,4 @@
-import { store, navigate } from './lib/store'
+import { store, navigate, toLogicalPath } from './lib/store'
 import { loadSettings, loadXpAndStreak } from './data/settings'
 import { renderHomeScreen } from './ui/screens/HomeScreen'
 import { renderLessonScreen } from './ui/screens/LessonScreen'
@@ -120,7 +120,7 @@ export async function initApp(): Promise<void> {
   appEl.appendChild(content)
   appEl.appendChild(createBottomNav())
 
-  const currentPath = window.location.pathname
+  const currentPath = toLogicalPath(window.location.pathname)
   store.set('route', currentPath)
   updateBottomNav(currentPath)
   await route(currentPath, content)
@@ -131,7 +131,8 @@ export async function initApp(): Promise<void> {
   })
 
   window.addEventListener('popstate', () => {
-    store.set('route', window.location.pathname)
+    const path = toLogicalPath(window.location.pathname)
+    store.set('route', path)
   })
 }
 

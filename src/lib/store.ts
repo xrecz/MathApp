@@ -48,7 +48,22 @@ export const store = new Store<AppState>({
   todayXp: 0,
 })
 
+// BASE is e.g. '/MathApp' (no trailing slash) — derived from Vite's BASE_URL
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+/** Strip the deploy base from a full pathname, returning a logical route like '/lesson/p0.brueche' */
+export function toLogicalPath(pathname: string): string {
+  if (BASE && pathname.startsWith(BASE)) {
+    const stripped = pathname.slice(BASE.length)
+    return stripped === '' ? '/' : stripped.startsWith('/') ? stripped : '/' + stripped
+  }
+  return pathname || '/'
+}
+
+/** Navigate to a logical path (e.g. '/', '/lesson/p0.brueche').
+ *  Pushes BASE + path to history so the URL stays correct. */
 export function navigate(path: string): void {
-  window.history.pushState({}, '', path)
+  const full = BASE + (path.startsWith('/') ? path : '/' + path)
+  window.history.pushState({}, '', full)
   store.set('route', path)
 }

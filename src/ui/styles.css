@@ -70,6 +70,12 @@
   .pb-safe-4 {
     padding-bottom: max(16px, var(--safe-bottom));
   }
+
+  /* Fixed banners that need to clear the status bar */
+  .safe-top-banner {
+    padding-top: max(8px, var(--safe-top));
+    padding-bottom: 8px;
+  }
 }
 
 @layer utilities {

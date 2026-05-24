@@ -167,3 +167,37 @@
 - **Gesamte Review-Cards**: 150
 - **Tests**: 124/124 grün
 - **Build**: ✅ Initial-Bundle 27.30 KB gzip
+
+---
+
+## Phase G — Abgeschlossen am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| G0 | ✅ | Diagnose: 5 Root-Causes dokumentiert in `docs/PHASE_G_DIAGNOSE.md` |
+| G1 | ✅ | KaTeX-Fix: ES-Modul-Import statt fehlender globaler Scripts |
+| G2 | ✅ | PWA Standalone: start_url/scope/id absolut, base /MathApp/ |
+| G3 | ✅ | Router Base-Path: toLogicalPath() + navigate() BASE-URL-aware |
+| G4 | ✅ | Submit-Button: pb-safe-4 korrekt, Analyse BUG-4 gelöst durch G2 |
+| G5 | ✅ | Safe-Area Banners: .safe-top-banner Klasse mit env(safe-area-inset-top) |
+| G6 | ✅ | Playwright E2E-Tests: playwright.config.ts + tests/e2e/ + CI-Integration |
+
+### Phase-G-Ergebnisse
+
+- **Root Cause BUG-1**: `katex.min.js` wurde nie geladen (nur CSS). Fix: ES-Modul-Import via `import renderMathInElement from 'katex/contrib/auto-render'`.
+- **Root Cause BUG-2**: `start_url: '.'` im Manifest — relativ, iOS-inkompatibel. Fix: `/MathApp/`.
+- **Root Cause BUG-3**: `window.location.pathname` ohne BASE-Strip. Fix: `toLogicalPath()`.
+- **Root Cause BUG-5**: `fixed top-0` Banners ohne `env(safe-area-inset-top)`. Fix: `.safe-top-banner`.
+- **Tests**: 137/137 Unit-Tests grün (124 Content + 13 Router)
+- **E2E**: Playwright-Konfiguration + 8 Tests (katex-render + pwa specs)
+- **Build**: ✅ Initial-Bundle 27.30 KB gzip, KaTeX-Chunk 137 kB gzip (separater Chunk)
+- **Änderungen**: `vite.config.ts`, `index.html`, `src/lib/katex.ts`, `src/lib/store.ts`, `src/app.ts`, `src/main.ts`, `src/ui/styles.css`, `tsconfig.json`
+
+### iPhone Re-Test (Pflicht)
+
+Nach Deployment auf GitHub Pages:
+- [ ] App startet im Standalone-Mode (keine Safari-UI)
+- [ ] Alle Formeln rendern als KaTeX (kein Roh-Text)
+- [ ] Home-Bildschirm-Tap → keine 404
+- [ ] Update-Banner liegt über Status-Bar (nicht darunter)
+- [ ] Submit-Button sichtbar und tippbar
