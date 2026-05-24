@@ -203,4 +203,184 @@ export const mle: Lesson = {
       conceptTags: ['mle', 'log-likelihood'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst MLE formal definieren, Log-Likelihood herleiten, MLE für Normal- und Binomialverteilung berechnen und beweisen, dass Cross-Entropy-Loss der negative Log-Likelihood des kategorischen Modells ist.',
+
+  description:
+    'Maximum Likelihood Estimation ist das statistische Fundament des ML-Trainings. Jedes Mal, wenn du ein neuronales Netz mit Cross-Entropy trainierst, führst du MLE durch. MSE-Regression ist MLE unter Gauß-Annahme. Das zu verstehen bedeutet, Loss-Funktionen nicht mehr als willkürliche Entscheidungen, sondern als probabilistische Aussagen zu sehen.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist Likelihood?',
+      preprompt: 'Du hast eine Münze 10 Mal geworfen und 7 Mal Kopf erhalten. Welche Münze (welcher Wert von $p$) macht dieses Ergebnis am "wahrscheinlichsten"?',
+      body: 'Die **Likelihood** $\\mathcal{L}(\\theta)$ beantwortet die Frage: "Wie gut erklärt Parameter $\\theta$ die beobachteten Daten?"\n\nFür i.i.d. Daten $D = \\{x_1, \\ldots, x_n\\}$:\n\n$$\\mathcal{L}(\\theta) = P(D \\mid \\theta) = \\prod_{i=1}^n P(x_i \\mid \\theta)$$\n\nDas ist das Produkt der Wahrscheinlichkeiten/Dichten der einzelnen Beobachtungen unter dem Modell mit Parameter $\\theta$.\n\n**MLE**: Wähle $\\hat{\\theta}$ so, dass die Likelihood maximal wird:\n\n$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\max_\\theta \\mathcal{L}(\\theta)$$',
+      miniExample: '3 Münzwürfe: Kopf, Kopf, Zahl. Likelihood für $\\theta = 0{,}7$: $0{,}7 \\cdot 0{,}7 \\cdot 0{,}3 = 0{,}147$. Für $\\theta = 0{,}5$: $0{,}5^3 = 0{,}125$. $\\theta = 0{,}7$ ist wahrscheinlicher.',
+    },
+    {
+      title: 'Likelihood vs. Wahrscheinlichkeit',
+      body: 'Ein kritischer Unterschied, der oft verwechselt wird:\n\n| | Wahrscheinlichkeit | Likelihood |\n|---|---|---|\n| Frage | $P(D \\mid \\theta)$ bei festem $\\theta$ | $\\mathcal{L}(\\theta) = P(D \\mid \\theta)$ bei festem $D$ |\n| Variable | $D$ variiert | $\\theta$ variiert |\n| Summe | $\\sum_D P(D \\mid \\theta) = 1$ | $\\int \\mathcal{L}(\\theta)\\, d\\theta \\neq 1$ im Allg. |\n| Normierung | Gültige Verteilung über $D$ | **Keine** Verteilung über $\\theta$ |\n\n**Wichtig**: Die Likelihood ist keine Wahrscheinlichkeit über $\\theta$. Sie misst die Kompatibilität der Daten mit dem Parameter.',
+      selfCheck: 'Kann $\\mathcal{L}(\\theta) > 1$ sein? (Ja — für kontinuierliche Daten ist es eine Dichte, keine Wahrscheinlichkeit.)',
+    },
+    {
+      title: 'Log-Likelihood — warum Log?',
+      body: 'Das Produkt $\\prod_{i=1}^n P(x_i \\mid \\theta)$ bei $n = 1000$: winzige Zahlen → numerischer **Underflow**.\n\nLösung: **Log-Likelihood** $\\ell(\\theta) = \\ln \\mathcal{L}(\\theta)$:\n\n$$\\ell(\\theta) = \\sum_{i=1}^n \\ln P(x_i \\mid \\theta)$$\n\nVorteile:\n1. **Numerisch stabil**: Summe statt Produkt\n2. **Gleiches Argmax**: $\\ln$ ist monoton → $\\arg\\max \\ell = \\arg\\max \\mathcal{L}$\n3. **Einfachere Algebra**: $\\ln(e^{-x^2/2}) = -x^2/2$ statt $e^{-x^2/2}$\n4. **Additivität**: $\\ln \\prod_i = \\sum_i \\ln$',
+      miniExample: '$n=1000$ Samples, $P(x_i \\mid \\theta) = 0{,}1$: Likelihood $= 10^{-1000}$ (Underflow!). Log-Likelihood $= 1000 \\cdot \\ln(0{,}1) = -2302{,}6$ (stabil).',
+    },
+    {
+      title: 'MLE: Ableiten und Nullsetzen',
+      body: 'MLE löst $\\frac{d}{d\\theta} \\ell(\\theta) = 0$ (notwendige Bedingung für Maximum).\n\n**Allgemeines Vorgehen**:\n1. Schreibe Log-Likelihood $\\ell(\\theta) = \\sum_i \\ln P(x_i \\mid \\theta)$\n2. Leite nach $\\theta$ ab: $\\frac{d\\ell}{d\\theta} = 0$\n3. Löse nach $\\hat{\\theta}$ auf\n4. Prüfe: Ist es ein Maximum? ($\\frac{d^2\\ell}{d\\theta^2} < 0$)\n\nFür mehrere Parameter: Gradient $\\nabla_\\theta \\ell(\\theta) = 0$ (Gleichungssystem).',
+      miniExample: 'Bernoulli: $\\ell(p) = k \\ln p + (n-k) \\ln(1-p)$. $\\frac{d\\ell}{dp} = k/p - (n-k)/(1-p) = 0$ → $\\hat{p} = k/n$ — relativer Anteil der Erfolge.',
+    },
+    {
+      title: 'MLE für Normalverteilung',
+      body: 'Daten $x_1, \\ldots, x_n \\sim \\mathcal{N}(\\mu, \\sigma^2)$ (beide unbekannt). Log-Likelihood:\n\n$$\\ell(\\mu, \\sigma^2) = -\\frac{n}{2}\\ln(2\\pi) - \\frac{n}{2}\\ln(\\sigma^2) - \\frac{1}{2\\sigma^2}\\sum_{i=1}^n (x_i - \\mu)^2$$\n\n**MLE-Schätzer**:\n$$\\hat{\\mu}_{\\text{MLE}} = \\frac{1}{n}\\sum_i x_i = \\bar{x} \\qquad \\hat{\\sigma}^2_{\\text{MLE}} = \\frac{1}{n}\\sum_i (x_i - \\bar{x})^2$$\n\n**Achtung**: $\\hat{\\sigma}^2_{\\text{MLE}}$ teilt durch $n$, nicht $n-1$ — der MLE für Varianz ist **verzerrt** (biased)!',
+      selfCheck: 'Warum ist $\\hat{\\sigma}^2_{\\text{MLE}}$ verzerrt? ($\\mathbb{E}[\\hat{\\sigma}^2_{\\text{MLE}}] = \\frac{n-1}{n}\\sigma^2 \\neq \\sigma^2$ — Bessel-Korrektur $\\frac{1}{n-1}$ behebt das.)',
+    },
+    {
+      title: 'ML: Cross-Entropy-Loss IST negatives MLE',
+      body: 'Kategorisches Modell: $P(y = k \\mid x, \\theta) = \\hat{y}_k = \\text{softmax}(f_\\theta(x))_k$.\n\nLog-Likelihood über $n$ Samples:\n\n$$\\ell(\\theta) = \\sum_{i=1}^n \\ln P(y_i \\mid x_i, \\theta) = \\sum_{i=1}^n \\ln \\hat{y}_{k_i^*}$$\n\nNegative Log-Likelihood (NLL) als Verlust:\n\n$$\\mathcal{L}_{\\text{NLL}}(\\theta) = -\\frac{1}{n}\\sum_i \\ln \\hat{y}_{k_i^*} = \\frac{1}{n}\\sum_i H(y_i, \\hat{y}_i) = \\mathcal{L}_{\\text{CE}}$$\n\n$$\\boxed{\\text{Training mit Cross-Entropy} \\equiv \\text{MLE des kategorischen Modells}}$$\n\n| Modell | Loss | Probabilistische Deutung |\n|---|---|---|\n| Gauß | MSE | MLE $\\mathcal{N}(f_\\theta, \\sigma^2)$ |\n| Kategorisch | CE | MLE Kategorisch$(\\hat{y})$ |\n| Laplace | MAE | MLE $\\text{Laplace}(f_\\theta, b)$ |',
+      selfCheck: 'Was passiert mit dem CE-Loss, wenn das Modell perfekt sicher für die wahre Klasse ist? ($\\hat{y}_{k^*} = 1 \\Rightarrow \\mathcal{L}_{\\text{CE}} = -\\ln(1) = 0$)',
+    },
+    {
+      title: 'MLE und KL-Divergenz',
+      body: 'MLE hat eine tiefere Bedeutung: Es minimiert die **KL-Divergenz** zwischen der Datenverteilung $p_{\\text{data}}$ und dem Modell $p_\\theta$:\n\n$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_\\theta D_{\\text{KL}}(p_{\\text{data}} \\| p_\\theta) = \\arg\\min_\\theta -\\mathbb{E}_{p_{\\text{data}}}[\\ln p_\\theta(x)]$$\n\nDa $\\mathbb{E}_{p_{\\text{data}}}[\\ln p_\\theta(x)] \\approx \\frac{1}{n}\\sum_i \\ln p_\\theta(x_i)$ (empirischer Erwartungswert):\n\n$$\\Rightarrow \\text{MLE} \\approx \\arg\\min_\\theta D_{\\text{KL}}(p_{\\text{data}} \\| p_\\theta)$$\n\nTraining = Annähern der Modellverteilung an die Datenverteilung.',
+      selfCheck: 'Was bedeutet $D_{\\text{KL}}(p \\| q) = 0$? (Die Verteilungen $p$ und $q$ sind identisch — das Modell hat die Datenverteilung perfekt gelernt.)',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'MLE von Hand für Binomial; torch.nn.CrossEntropyLoss als NLL',
+      lang: 'python',
+      code: `import torch
+import torch.nn as nn
+import numpy as np
+from scipy.optimize import minimize_scalar
+
+# --- MLE für Binomialverteilung ---
+# Daten: 100 Münzwürfe, 63 Kopf
+n_trials, n_heads = 100, 63
+
+# Log-Likelihood als Funktion von p
+def neg_log_likelihood_binomial(p):
+    if p <= 0 or p >= 1:
+        return float('inf')
+    # log L(p) = k*log(p) + (n-k)*log(1-p) + const
+    return -(n_heads * np.log(p) + (n_trials - n_heads) * np.log(1 - p))
+
+# Numerische Optimierung
+result = minimize_scalar(neg_log_likelihood_binomial, bounds=(0.01, 0.99), method='bounded')
+p_mle = result.x
+print(f"MLE p = {p_mle:.4f}")   # ≈ 0.6300 = 63/100 (analytisch!)
+print(f"Analytisch: {n_heads/n_trials:.4f}")  # identisch
+
+# --- CrossEntropyLoss als NLL (kategorisches Modell) ---
+# Direkte Verknüpfung: F.cross_entropy = NLL des kategorischen Modells
+batch = 4
+n_classes = 3
+logits = torch.tensor([
+    [2.0, 0.5, -0.5],  # Sample 0: Klasse 0 bevorzugt
+    [0.5, 2.0, -0.5],  # Sample 1: Klasse 1 bevorzugt
+    [0.1, 0.1, 3.0],   # Sample 2: Klasse 2 bevorzugt
+    [1.0, 1.0, 1.0],   # Sample 3: unsicher
+])
+labels = torch.tensor([0, 1, 2, 0])  # wahre Klassen
+
+# CrossEntropy = NLL des kategorischen Modells
+ce_loss = nn.CrossEntropyLoss()(logits, labels)
+print(f"CE Loss (NLL): {ce_loss.item():.4f}")
+
+# Manuell: -1/n * sum_i log(softmax(logits)[i, label[i]])
+probs = logits.softmax(dim=1)
+nll_manual = -probs[range(batch), labels].log().mean()
+print(f"NLL manuell:   {nll_manual.item():.4f}")  # identisch!
+
+# Gauß-MLE = MSE (numerisch bestätigt)
+y_pred = torch.tensor([1.5, 2.5, 0.5, 3.0])
+y_true = torch.tensor([1.0, 2.0, 1.0, 3.0])
+mse = nn.MSELoss()(y_pred, y_true)
+gauß_nll = -torch.distributions.Normal(y_pred, 1.0).log_prob(y_true).mean()
+print(f"MSE:      {mse.item():.4f}")
+print(f"Gauß-NLL: {gauß_nll.item():.4f}")  # MSE + const`,
+      annotation: '`nn.CrossEntropyLoss` berechnet intern `log_softmax + NLLLoss` für numerische Stabilität. Der `log_softmax`-Trick verhindert Overflow bei großen Logits. Direkte Verbindung: $\\mathcal{L}_{\\text{CE}} = -\\frac{1}{n}\\sum_i \\ln \\text{softmax}(f_\\theta(x_i))_{k_i^*}$ = NLL des kategorischen Modells.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'MLE für Normalverteilung: $\\hat{\\mu} = \\bar{x}$ und $\\hat{\\sigma}^2 = \\frac{1}{n}\\sum(x_i - \\bar{x})^2$',
+      reasoning:
+        '$\\ell(\\mu, \\sigma^2) = -\\frac{n}{2}\\ln(2\\pi\\sigma^2) - \\frac{1}{2\\sigma^2}\\sum_i(x_i-\\mu)^2$. Ableitung nach $\\mu$: $\\frac{\\partial \\ell}{\\partial \\mu} = \\frac{1}{\\sigma^2}\\sum_i(x_i - \\mu) = 0 \\Rightarrow \\hat{\\mu} = \\bar{x}$. Ableitung nach $\\sigma^2$: $\\frac{\\partial \\ell}{\\partial \\sigma^2} = -\\frac{n}{2\\sigma^2} + \\frac{1}{2(\\sigma^2)^2}\\sum_i(x_i-\\bar{x})^2 = 0 \\Rightarrow \\hat{\\sigma}^2 = \\frac{1}{n}\\sum_i(x_i-\\bar{x})^2$ (geteilt durch $n$, nicht $n-1$).',
+    },
+    {
+      claim: 'MLE minimiert KL-Divergenz $D_{\\text{KL}}(p_{\\text{data}} \\| p_\\theta)$',
+      reasoning:
+        '$D_{\\text{KL}}(p_{\\text{data}} \\| p_\\theta) = \\mathbb{E}_{p_{\\text{data}}}[\\ln p_{\\text{data}}(x)] - \\mathbb{E}_{p_{\\text{data}}}[\\ln p_\\theta(x)]$. Der erste Term ist die Entropie von $p_{\\text{data}}$ — unabhängig von $\\theta$. Minimiere über $\\theta$: $\\arg\\min_\\theta D_{\\text{KL}} = \\arg\\max_\\theta \\mathbb{E}_{p_{\\text{data}}}[\\ln p_\\theta(x)] \\approx \\arg\\max_\\theta \\frac{1}{n}\\sum_i \\ln p_\\theta(x_i) = \\hat{\\theta}_{\\text{MLE}}$.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'MLE ist immer der beste Schätzer',
+      correct: 'MLE ist konsistent und asymptotisch effizient, aber kann für kleine $n$ stark overfitting zeigen',
+      explanation:
+        'Für kleine Datensätze kann MLE die Varianz maximieren (Overfitting). Beispiel: 3 Münzwürfe, 3 Kopf → $\\hat{p}_{\\text{MLE}} = 1{,}0$ — unrealistisch. MAP mit informiertem Prior gibt robustere Schätzung.',
+    },
+    {
+      wrong: 'Likelihood $\\mathcal{L}(\\theta)$ ist eine Wahrscheinlichkeit und summiert zu 1',
+      correct: 'Likelihood ist keine Verteilung über $\\theta$ — $\\int \\mathcal{L}(\\theta) d\\theta$ ist im Allgemeinen $\\neq 1$',
+      explanation:
+        'Likelihoodwerte selbst sind nicht direkt interpretierbar (nur relativ). Wichtig ist der Vergleich: $\\mathcal{L}(\\theta_1) > \\mathcal{L}(\\theta_2)$ bedeutet $\\theta_1$ erklärt die Daten besser. Erst durch Bayes-Theorem und Normierung ergibt sich eine Wahrscheinlichkeit über $\\theta$ (der Posterior).',
+    },
+    {
+      wrong: 'Cross-Entropy-Loss = Entropie der Ausgabeverteilung',
+      correct: 'Cross-Entropy-Loss = Cross-Entropy zwischen One-Hot-Label und Softmax-Ausgabe = NLL',
+      explanation:
+        'Entropie: $H(p) = -\\sum_k p_k \\ln p_k$ (nur $p$). Cross-Entropy: $H(p, q) = -\\sum_k p_k \\ln q_k$ (zwei Verteilungen). CE-Loss nutzt die wahre Verteilung (One-Hot) als $p$ und die Modellverteilung (Softmax) als $q$.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'StatQuest: "Maximum Likelihood, clearly explained" (YouTube)',
+      type: 'video',
+      note: 'Schrittweise Herleitung für Normalverteilung; sehr zugänglich',
+    },
+    {
+      title: 'StatQuest: "Cross Entropy and Log Loss" (YouTube)',
+      type: 'video',
+      note: 'Direkte Verbindung zwischen Cross-Entropy und NLL; ML-Perspektive',
+    },
+    {
+      title: 'Goodfellow et al., Kapitel 5.5: "Maximum Likelihood Estimation"',
+      type: 'book',
+      note: 'Freier Online-Zugang; Kapitel 5.5.1 behandelt KL-Divergenz-Verbindung',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.pmf-pdf-cdf',
+      relation: 'requires',
+      hint: 'Likelihood = Produkt von PDF/PMF-Werten — PMF/PDF-Konzept ist Voraussetzung.',
+    },
+    {
+      lessonId: 'p1.bayes-theorem',
+      relation: 'requires',
+      hint: 'MLE ist MAP mit Uniform-Prior — Bayes-Theorem liefert die probabilistische Einbettung.',
+    },
+    {
+      lessonId: 'p1.map-regularisierung-bias-variance',
+      relation: 'extends',
+      hint: 'MAP verallgemeinert MLE durch einen Prior — Lektion 10 zeigt, wie das Regularisierung ergibt.',
+    },
+    {
+      lessonId: 'p1.diskrete-verteilungen',
+      relation: 'see-also',
+      hint: 'Cross-Entropy-Loss ist MLE des kategorischen Modells — Bernoulli/Kategorisch-Verteilung als Grundlage.',
+    },
+  ],
+
+  reflection: 'MLE ist keine neue Idee für ML — es ist das statistische Prinzip, das Training **definiert**. Cross-Entropy ist nicht willkürlich: es ist die einzig logische Konsequenz der Gauß- oder kategorischen Annahme auf den Residuen. **Welche Verbindung hat dich am meisten überrascht: MSE = Gauß-MLE, oder CE = kategorisches MLE?**',
 }

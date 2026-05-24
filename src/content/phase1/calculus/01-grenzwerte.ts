@@ -169,4 +169,150 @@ export const grenzwerte: Lesson = {
       conceptTags: ['asymptote'],
     },
   ],
+
+  learningOutcome:
+    'Du verstehst Grenzwerte intuitiv als "beliebig nahe herankommen", kannst Grenzwerte stetiger Funktionen durch Einsetzen berechnen, erkennst Asymptoten von Sigmoid und Softmax, und verstehst wie sättigende Aktivierungsfunktionen zum Vanishing-Gradient-Problem führen.',
+
+  description:
+    'Grenzwerte sind das Fundament der Analysis: Ableitungen, Integrale und Stetigkeit sind alle als Grenzwerte definiert. Intuitiv fragt ein Grenzwert, wohin ein Funktionswert strebt — nicht welchen Wert die Funktion annimmt. In ML erscheinen Grenzwerte bei Aktivierungsfunktionen (Asymptoten), der Euler-Zahl (Softmax, Adam-Optimizer) und der Konvergenz von Lernalgorithmen.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist ein Grenzwert? Die Grundintuition',
+      body: '"$\\lim_{x \\to a} f(x) = L$" bedeutet: wenn $x$ beliebig nahe an $a$ herankommt (von beiden Seiten), kommt $f(x)$ beliebig nahe an $L$ heran. Wichtig: $x$ erreicht $a$ nie — es ist die **Annäherung**, nicht der Wert selbst. Deshalb kann der Grenzwert existieren, auch wenn $f(a)$ undefiniert ist (z.B. $\\frac{\\sin x}{x}$ bei $x = 0$).',
+      preprompt: 'Was ist der Unterschied zwischen "sich annähern" und "erreichen"?',
+      miniExample:
+        '$f(x) = \\frac{x^2 - 1}{x - 1} = x + 1$ für $x \\neq 1$: Bei $x = 1$ gibt es eine Nullstelle im Nenner — $f(1)$ undefiniert. Aber $\\lim_{x \\to 1} f(x) = 2$ — der Grenzwert existiert.',
+      selfCheck: 'Kann ein Grenzwert existieren, wenn die Funktion dort nicht definiert ist? Gib ein Beispiel.',
+    },
+    {
+      title: 'Grenzwerte berechnen: Regeln und wichtige Fälle',
+      body: 'Drei Strategien: (1) Stetige Funktion → einfach einsetzen: $\\lim_{x \\to 2} x^2 = 4$. (2) $\\frac{0}{0}$-Form → kürzen oder L\'Hôpital: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$. (3) $x \\to \\infty$ → höchste Potenzen dominieren: $\\lim_{x \\to \\infty} \\frac{3x^2 + 1}{x^2} = 3$. Rechenregeln: Summen, Produkte, Quotienten von Grenzwerten sind Grenzwerte der Summen/Produkte/Quotienten (wenn Nenner $\\neq 0$).',
+      preprompt: 'Was bedeutet die "0/0"-Form, und warum ist sie problematisch?',
+      miniExample:
+        '$\\lim_{x \\to \\infty} \\frac{2x^2 + 3x}{x^2 - 1}$: Durch $x^2$ dividieren → $\\lim_{x \\to \\infty} \\frac{2 + 3/x}{1 - 1/x^2} = \\frac{2 + 0}{1 - 0} = 2$. Höchste Potenzen dominieren.',
+      selfCheck: 'Berechne $\\lim_{x \\to \\infty} \\frac{5x^3 + 2}{x^3}$.',
+    },
+    {
+      title: 'Stetigkeit: Funktion ohne Lücken und Sprünge',
+      body: 'Eine Funktion $f$ ist stetig in $a$, wenn drei Bedingungen erfüllt sind: (1) $f(a)$ ist definiert; (2) $\\lim_{x \\to a} f(x)$ existiert; (3) beide sind gleich: $\\lim_{x \\to a} f(x) = f(a)$. Intuitiv: der Graph kann ohne Stiftabheben gezeichnet werden. In ML: alle gängigen Aktivierungsfunktionen (ReLU, Sigmoid, Tanh, GELU) sind stetig — wichtig für Gradientenfluss.',
+      preprompt: 'Was unterscheidet eine stetige von einer unstetigen Funktion?',
+      miniExample:
+        'ReLU: $f(x) = \\max(0, x)$ ist stetig überall — auch in $x=0$, weil $f(0) = 0 = \\lim_{x \\to 0} f(x)$. Aber die **Ableitung** ist in $x=0$ unstetig: links $0$, rechts $1$. ReLU ist stetig, aber nicht differenzierbar in $0$.',
+      selfCheck: 'Ist die Stufenfunktion $f(x) = 0$ für $x < 0$ und $f(x) = 1$ für $x \\geq 0$ stetig in $x = 0$?',
+    },
+    {
+      title: 'Wichtige Grenzwerte: $e$, $\\sin x / x$, Asymptoten',
+      body: 'Drei wichtige Grenzwerte aus ML-Sicht:\n1. $\\lim_{n \\to \\infty}(1 + 1/n)^n = e \\approx 2{,}718$ — Definition der Euler-Zahl; taucht in Softmax, $e^x$, Adam-Optimizer auf\n2. $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ — Grundlage für Taylor-Entwicklungen\n3. $\\lim_{x \\to \\pm\\infty} \\sigma(x) = \\{1, 0\\}$ — Sigmoid-Asymptoten, Ursache des Vanishing Gradient',
+      preprompt: 'Wo kommt die Euler-Zahl $e$ in ML-Algorithmen vor?',
+      miniExample:
+        'Adam-Optimizer: $\\hat{m} = m / (1 - \\beta_1^t)$, $\\hat{v} = v / (1 - \\beta_2^t)$. Die Korrekturfaktoren $(1-\\beta^t)^{-1}$ nähern sich $1$ für große $t$ — Grenzwert-Argument. Mit $\\beta_1 = 0{,}9$: $(1 - 0{,}9^{10})^{-1} \\approx 1{,}055$, $(1 - 0{,}9^{100})^{-1} \\approx 1{,}0$.',
+      selfCheck: 'Warum hat Sigmoid zwei Asymptoten, aber keine endlichen Grenzwerte?',
+    },
+    {
+      title: 'Konvergenz in ML: Wenn Algorithmen "gegen etwas streben"',
+      body: 'Grenzwerte formalisieren Konvergenz: eine Folge $w_0, w_1, w_2, \\ldots$ konvergiert gegen $w^*$, wenn $\\lim_{t \\to \\infty} w_t = w^*$. Gradient Descent konvergiert (unter Bedingungen) gegen ein lokales Minimum: $\\lim_{t \\to \\infty} L(w_t) = L^*$. Die Lernrate $\\eta$ bestimmt, ob die Folge konvergiert (klein genug $\\eta$) oder divergiert (zu groß $\\eta$). SGD-Loss springt — konvergiert nicht im strengen Sinn, aber im Zeitmittel.',
+      preprompt: 'Was bedeutet es, dass ein Algorithmus "konvergiert"?',
+      miniExample:
+        'Geometrische Folge: $w_t = w_0 \\cdot r^t$ konvergiert gegen $0$ wenn $|r| < 1$. Gradient Descent auf $L(w) = w^2$: $w_{t+1} = w_t - \\eta \\cdot 2w_t = (1 - 2\\eta)w_t$. Konvergiert für $\\eta < 1/2$ mit Rate $(1-2\\eta)^t$.',
+      selfCheck: 'Was passiert mit der Folge $w_t = (1 - 2\\eta)^t w_0$ wenn $\\eta > 1/2$?',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'Grenzwerte numerisch beobachten und Sigmoid-Konvergenz',
+      lang: 'python',
+      code: `import numpy as np
+import torch
+
+# === Grenzwert numerisch beobachten ===
+# lim_{x->0} sin(x)/x = 1
+print("sin(x)/x für kleines x:")
+for h in [1.0, 0.1, 0.01, 0.001, 0.0001]:
+    val = np.sin(h) / h
+    print(f"  h={h:.4f}: sin(h)/h = {val:.8f}")
+# Output zeigt: Annäherung an 1.0
+
+# lim_{n->inf} (1 + 1/n)^n = e
+print("\\n(1 + 1/n)^n für großes n:")
+for n in [1, 10, 100, 1000, 10000, 100000]:
+    val = (1 + 1/n)**n
+    print(f"  n={n:6d}: {val:.8f}  (e = {np.e:.8f})")
+
+# === Sigmoid-Asymptoten ===
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+print("\\nSigmoid-Grenzwerte:")
+for x in [-100, -10, -1, 0, 1, 10, 100]:
+    print(f"  σ({x:4d}) = {sigmoid(x):.8f}")
+
+# === SGD-Konvergenz auf L(w) = w^2 ===
+# L'(w) = 2w; Update: w <- w - eta * 2w = w(1 - 2*eta)
+eta = 0.1  # Lernrate
+w = 5.0    # Startwert
+print(f"\\nSGD auf L(w)=w^2, eta={eta}, w_0={w}")
+for t in range(10):
+    grad = 2 * w          # L'(w) = 2w
+    w = w - eta * grad    # Gradient-Descent-Schritt
+    loss = w**2
+    print(f"  t={t}: w={w:.4f}, L(w)={loss:.6f}")
+# Konvergenzfaktor: (1 - 2*eta)^t = 0.8^t`,
+      annotation:
+        'Numerisches Beobachten von Grenzwerten zeigt, wie schnell Folgen konvergieren. Die Konvergenzrate $(1 - 2\\eta)^t$ ist exponentiell — das ist der Grund, warum Gradient Descent linear konvergiert auf quadratischen Funktionen.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: '$\\lim_{n\\to\\infty}(1+1/n)^n = e$',
+      reasoning: 'Definiere $a_n = (1 + 1/n)^n$ und nehme den natürlichen Logarithmus: $\\ln(a_n) = n \\cdot \\ln(1 + 1/n)$. Für kleines $t$ gilt $\\ln(1+t) \\approx t - t^2/2 + \\dots$, also mit $t = 1/n$: $n \\cdot \\ln(1 + 1/n) \\approx n \\cdot (1/n - 1/(2n^2) + \\dots) = 1 - 1/(2n) + \\dots \\to 1$. Daher $\\ln(a_n) \\to 1$ und $a_n \\to e^1 = e$. Die Euler-Zahl ist durch diesen Grenzwert definiert.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: '$\\lim_{x \\to a} f(x) = f(a)$ gilt immer — man setzt einfach ein.',
+      correct: 'Das gilt nur für stetige Funktionen. Erst prüfen: ist $f$ stetig in $a$? Bei $0/0$-Formen muss man kürzen oder L\'Hôpital anwenden.',
+      explanation: 'Die Identität $\\lim_{x \\to a} f(x) = f(a)$ ist äquivalent zur Stetigkeit von $f$ in $a$ — sie ist keine allgemeine Regel.',
+    },
+    {
+      wrong: '"$x \\to \\infty$" bedeutet "$x = \\infty$", also rechnet man mit $\\infty$ als Zahl.',
+      correct: '$\\infty$ ist keine reelle Zahl. "$x \\to \\infty$" bedeutet: $x$ wächst ohne Schranke — der Grenzwert beschreibt das Verhalten für beliebig große $x$.',
+      explanation: 'Ausdrücke wie "$\\infty - \\infty$" oder "$0 \\cdot \\infty$" sind keine gültigen Rechenoperationen, sondern unbestimmte Ausdrücke.',
+    },
+    {
+      wrong: 'Sigmoid "erreicht 1" für sehr große $x$ — also kann man $\\sigma(x) = 1$ setzen.',
+      correct: '$\\sigma(x) < 1$ für alle endlichen $x$. Es strebt gegen 1, aber erreicht es nie — der Unterschied zwischen Asymptote und tatsächlichem Wert.',
+      explanation: 'In Float32: `sigmoid(100) = 1.0` wegen Runden — aber mathematisch ist der Wert nie exakt 1. Das führt zu `log(0) = -inf` wenn man unvorsichtig mit NLL arbeitet.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: Essence of Calculus — Limits',
+      type: 'video',
+      note: 'Folge 7 der Serie: herausragende Visualisierung wie Grenzwerte die formale Grundlage für Ableitungen und Integrale bilden.',
+    },
+    {
+      title: 'Khan Academy: Limits and Continuity',
+      type: 'exercise',
+      note: 'Strukturierter Kurs mit Übungsaufgaben zu allen Grenzwert-Techniken — ideal als Ergänzung.',
+    },
+    {
+      title: 'Paul\'s Online Math Notes: Limits',
+      type: 'article',
+      note: 'Kompakte Referenz mit allen wichtigen Grenzwert-Techniken, Rechenregeln und kommentierten Beispielen.',
+    },
+  ],
+
+  crossLinks: [
+    { lessonId: 'p1.ableitung-konzept', relation: 'extends', hint: 'Die Ableitung ist als Grenzwert des Differenzenquotienten definiert.' },
+    { lessonId: 'p1.extrema-taylor', relation: 'extends', hint: 'Taylor-Reihen verwenden Grenzwerte zur Approximation glatter Funktionen.' },
+    { lessonId: 'p0.funktionen-und-graphen', relation: 'requires', hint: 'Grenzwerte brauchen Verständnis von Funktionen und ihren Graphen.' },
+    { lessonId: 'p1.ml-ableitungen', relation: 'see-also', hint: 'Vanishing Gradient: Grenzwert der Sigmoid-Ableitung bei Sättigung.' },
+  ],
+
+  reflection: 'Sigmoid "sättigt" in den Asymptoten — die Ableitung wird beliebig klein. Warum löst ReLU dieses Problem? Und warum hat ReLU dafür ein anderes Problem (Dying ReLU)? Was sagt uns das über den Zusammenhang zwischen Grenzwerten und dem Trainieren tiefer Netze?',
 }

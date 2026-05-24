@@ -191,4 +191,185 @@ export const kovarianzMultivariateGauss: Lesson = {
       conceptTags: ['multivariate-gaussian'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst die Kovarianzmatrix berechnen und interpretieren, die multivariate Normalverteilung $\\mathcal{N}(\\boldsymbol{\\mu}, \\Sigma)$ geometrisch verstehen und erklären, warum PCA die Eigenwertzerlegung der Kovarianzmatrix nutzt.',
+
+  description:
+    'Kovarianz beschreibt den linearen Zusammenhang zwischen zwei Zufallsvariablen. Die Kovarianzmatrix fasst alle paarweisen Beziehungen eines Vektors zusammen und ist das Herzstück von PCA, multivariater Normalverteilung und Gauss-Prozessen.',
+
+  conceptSteps: [
+    {
+      title: 'Kovarianz — Zusammenhang zweier Variablen',
+      preprompt: 'Körpergröße und Gewicht: wenn jemand größer ist, ist er tendenziell schwerer. Wie misst man diesen "Zusammenhang" mathematisch?',
+      body: 'Die **Kovarianz** $\\text{Cov}(X, Y)$ misst den linearen Zusammenhang zwischen zwei ZVn:\n\n$$\\text{Cov}(X, Y) = \\mathbb{E}[(X - \\mu_X)(Y - \\mu_Y)]$$\n\nVereinfacht: $\\text{Cov}(X, Y) = \\mathbb{E}[XY] - \\mu_X \\mu_Y$\n\n- $> 0$: tendieren zusammen zu steigen\n- $< 0$: gegenläufige Bewegung\n- $= 0$: **linear unkorreliert** (aber nicht notwendigerweise unabhängig!)',
+      miniExample: '$\\text{Cov}(X, X) = \\mathbb{E}[(X-\\mu)^2] = \\text{Var}(X)$ — die Kovarianz einer ZV mit sich selbst ist ihre Varianz.',
+      selfCheck: 'Kann $\\text{Cov}(X,Y) = 0$ gelten, obwohl $X$ und $Y$ abhängig sind? (Ja — $Y = X^2$ ist abhängig von $X$, aber unkorrleliert für symmetrische $X$.)',
+    },
+    {
+      title: 'Kovarianzmatrix $\\Sigma$',
+      body: 'Für einen $d$-dimensionalen Zufallsvektor $\\mathbf{X} = (X_1, \\ldots, X_d)^\\top$ fasst die **Kovarianzmatrix** alle paarweisen Kovarianzen zusammen:\n\n$$\\Sigma_{ij} = \\text{Cov}(X_i, X_j) \\qquad \\Rightarrow \\qquad \\Sigma \\in \\mathbb{R}^{d \\times d}$$\n\nAls Matrix-Ausdruck: $\\Sigma = \\mathbb{E}[(\\mathbf{X} - \\boldsymbol{\\mu})(\\mathbf{X} - \\boldsymbol{\\mu})^\\top]$\n\n**Diagonale**: $\\Sigma_{ii} = \\text{Var}(X_i)$\n\n**Stichproben-Schätzer** für zentrierte Daten $X \\in \\mathbb{R}^{n \\times d}$:\n$$\\hat{\\Sigma} = \\frac{1}{n-1} X^\\top X$$',
+      miniExample: 'Für $\\mathbf{X} = (X_1, X_2)$: $\\Sigma = \\begin{pmatrix}\\text{Var}(X_1) & \\text{Cov}(X_1,X_2) \\\\ \\text{Cov}(X_1,X_2) & \\text{Var}(X_2)\\end{pmatrix}$',
+    },
+    {
+      title: 'Eigenschaften von $\\Sigma$ (PSD, symmetrisch)',
+      body: 'Die Kovarianzmatrix hat zwei fundamentale Eigenschaften:\n\n**Symmetrisch**: $\\Sigma = \\Sigma^\\top$ (da $\\text{Cov}(X_i, X_j) = \\text{Cov}(X_j, X_i)$)\n\n**Positiv semidefinit (PSD)**: $v^\\top \\Sigma v \\geq 0$ für alle $v$\n\n**Beweis**: $v^\\top \\Sigma v = \\text{Var}(v^\\top \\mathbf{X}) \\geq 0$ — Varianz ist immer nicht-negativ.\n\nFolgen: Eigenwerte $\\geq 0$; invertierbar (PD) wenn keine lineare Abhängigkeit zwischen Features; Spektralsatz: orthogonale Eigenvektoren.',
+      selfCheck: 'Wann ist $\\Sigma$ nicht invertierbar? (Wenn zwei Features perfekt linear abhängig sind — dann ist Rang von $\\Sigma$ < $d$, und $\\Sigma$ ist singulär.)',
+    },
+    {
+      title: 'Multivariate Normalverteilung',
+      body: 'Die **multivariate Normalverteilung** $\\mathbf{X} \\sim \\mathcal{N}(\\boldsymbol{\\mu}, \\Sigma)$:\n\n$$f(\\mathbf{x}) = \\frac{1}{(2\\pi)^{d/2}|\\Sigma|^{1/2}} \\exp\\!\\left(-\\frac{1}{2}(\\mathbf{x} - \\boldsymbol{\\mu})^\\top \\Sigma^{-1}(\\mathbf{x} - \\boldsymbol{\\mu})\\right)$$\n\nDer Term $(\\mathbf{x} - \\boldsymbol{\\mu})^\\top \\Sigma^{-1}(\\mathbf{x} - \\boldsymbol{\\mu})$ ist die **Mahalanobis-Distanz²** — er berücksichtigt Kovarianzstruktur.\n\n**Sonderfall**: $\\Sigma = I$ → Konturlinien sind Kreise → $\\mathcal{N}(\\boldsymbol{\\mu}, I) = $ unabhängige univariate Normalverteilungen.',
+    },
+    {
+      title: 'Geometrie: Ellipsen und Eigenvektoren',
+      body: 'Konturlinien von $\\mathcal{N}(\\boldsymbol{\\mu}, \\Sigma)$ sind **Ellipsen**:\n\n$$\\{\\mathbf{x} : (\\mathbf{x}-\\boldsymbol{\\mu})^\\top \\Sigma^{-1}(\\mathbf{x}-\\boldsymbol{\\mu}) = c\\}$$\n\nDie Ellipsen-Achsen entsprechen den **Eigenvektoren** von $\\Sigma$.\n\nDie Achsenlängen sind proportional zu $\\sqrt{\\lambda_i}$ (Quadratwurzel des Eigenwerts).',
+      visual: `<svg viewBox="0 0 300 110" width="300" height="110" aria-label="Gauss Ellipsen verschiedene Korrelationen">
+        <rect x="0" y="0" width="300" height="110" rx="6" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <text x="8" y="12" fill="rgb(156 163 175)" font-size="8">ρ = 0 (Kreis)</text>
+        <ellipse cx="50" cy="60" rx="32" ry="32" stroke="rgb(99 102 241)" stroke-width="1.5" fill="none"/>
+        <ellipse cx="50" cy="60" rx="18" ry="18" stroke="rgb(99 102 241)" stroke-width="1" fill="none" opacity="0.6"/>
+        <circle cx="50" cy="60" r="2" fill="rgb(99 102 241)"/>
+        <text x="108" y="12" fill="rgb(156 163 175)" font-size="8">ρ &gt; 0 (diagonal)</text>
+        <ellipse cx="150" cy="60" rx="38" ry="20" stroke="rgb(16 185 129)" stroke-width="1.5" fill="none" transform="rotate(-35 150 60)"/>
+        <ellipse cx="150" cy="60" rx="22" ry="11" stroke="rgb(16 185 129)" stroke-width="1" fill="none" opacity="0.6" transform="rotate(-35 150 60)"/>
+        <circle cx="150" cy="60" r="2" fill="rgb(16 185 129)"/>
+        <text x="208" y="12" fill="rgb(156 163 175)" font-size="8">ρ &lt; 0 (anti-diagonal)</text>
+        <ellipse cx="250" cy="60" rx="38" ry="20" stroke="rgb(251 191 36)" stroke-width="1.5" fill="none" transform="rotate(35 250 60)"/>
+        <ellipse cx="250" cy="60" rx="22" ry="11" stroke="rgb(251 191 36)" stroke-width="1" fill="none" opacity="0.6" transform="rotate(35 250 60)"/>
+        <circle cx="250" cy="60" r="2" fill="rgb(251 191 36)"/>
+      </svg>`,
+      miniExample: '$\\Sigma = \\begin{pmatrix}1 & 0 \\\\ 0 & 1\\end{pmatrix}$: Kreis. $\\Sigma = \\begin{pmatrix}2 & 1 \\\\ 1 & 1\\end{pmatrix}$: Ellipse mit positiver Korrelation.',
+    },
+    {
+      title: 'ML: PCA als Eigenwerte der Kovarianzmatrix',
+      body: '**PCA** (Principal Component Analysis) sucht die Richtungen maximaler Varianz:\n\n$$\\underbrace{\\text{maximiere}}_{\\|w\\|=1} \\; w^\\top \\Sigma w \\quad \\xrightarrow{\\text{Lagrange}} \\quad \\Sigma w = \\lambda w$$\n\nDas ist exakt die Eigenvektor-Gleichung! Größter Eigenwert → erste Hauptkomponente.\n\n**Feature-Dekorrelation**: Nach PCA-Transformation sind Features unkorreliert:\n$$\\text{Cov}(Z_i, Z_j) = 0 \\text{ für } i \\neq j$$\n\nDas erklärt Batch Normalization + Whitening in modernen Architekturen.',
+      selfCheck: 'Was bedeutet es, dass PCA-Features dekorreliert sind? (Die transformierten Features sind linear unabhängig — Kovarianzmatrix wird diagonal.)',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'NumPy Kovarianzmatrix; sklearn PCA; torch.distributions.MultivariateNormal',
+      lang: 'python',
+      code: `import numpy as np
+import torch
+from torch.distributions import MultivariateNormal
+from sklearn.decomposition import PCA
+
+# --- Stichproben-Kovarianzmatrix ---
+np.random.seed(42)
+n, d = 200, 3
+X = np.random.randn(n, d)
+X[:, 1] = 0.8 * X[:, 0] + 0.2 * np.random.randn(n)  # Feature 1 korreliert mit 0
+
+X_centered = X - X.mean(axis=0)                  # Zentrierung (wichtig!)
+Sigma = X_centered.T @ X_centered / (n - 1)      # (d×d) Kovarianzmatrix
+print("Kovarianzmatrix:")
+print(Sigma.round(2))  # Sigma[0,1] ≈ 0.8 × var(X[:,0])
+
+# --- PCA = Eigenwerte von Sigma ---
+eigvals, eigvecs = np.linalg.eigh(Sigma)  # eigh: symmetrisch → reelle EW
+# eigvecs[:, i] = i-ter Eigenvektor (Spalten!)
+# Sortieren: aufsteigend → umkehren für absteigende Varianz
+idx = np.argsort(eigvals)[::-1]
+eigvals, eigvecs = eigvals[idx], eigvecs[:, idx]
+print(f"Erkläre Varianz: {eigvals / eigvals.sum()}")  # [0.6x, 0.2x, 0.1x]
+
+# sklearn PCA (verwendet SVD intern — effizienter)
+pca = PCA(n_components=2)
+Z = pca.fit_transform(X_centered)  # (n, 2) transformierte Features
+print(f"Erklärte Varianz: {pca.explained_variance_ratio_}")
+
+# --- Multivariate Normalverteilung in Torch ---
+mu = torch.zeros(2)
+Sigma_torch = torch.tensor([[2.0, 1.0], [1.0, 1.0]])  # positive Korrelation
+
+dist = MultivariateNormal(loc=mu, covariance_matrix=Sigma_torch)
+samples = dist.sample((1000,))             # 1000 Samples aus N(μ, Σ)
+log_p = dist.log_prob(samples[:5])         # Log-Dichte (für Likelihood)
+
+# Mahalanobis-Distanz
+x_test = torch.tensor([2.0, 1.0])
+mahal_sq = ((x_test - mu) @ Sigma_torch.inverse() @ (x_test - mu))
+print(f"Mahalanobis²: {mahal_sq:.2f}")`,
+      annotation: '`np.linalg.eigh` (nicht `eig`) für symmetrische Matrizen: numerisch stabiler und garantiert reelle Eigenwerte. PCA nutzt intern SVD ($X = U S V^\\top$) statt Eigenwertzerlegung — effizienter für hohe Dimensionen. `MultivariateNormal` erwartet eine PSD-Kovarianzmatrix — nicht-PSD würde Fehler werfen.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Kovarianzmatrix ist positiv semidefinit',
+      reasoning:
+        'Für beliebiges $v \\in \\mathbb{R}^d$: $v^\\top \\Sigma v = v^\\top \\mathbb{E}[(\\mathbf{X}-\\boldsymbol{\\mu})(\\mathbf{X}-\\boldsymbol{\\mu})^\\top] v = \\mathbb{E}[v^\\top (\\mathbf{X}-\\boldsymbol{\\mu})(\\mathbf{X}-\\boldsymbol{\\mu})^\\top v] = \\mathbb{E}[\\|v^\\top (\\mathbf{X}-\\boldsymbol{\\mu})\\|^2] \\geq 0$, da Quadrate nicht-negativ sind.',
+    },
+    {
+      claim: 'PCA-Richtungen sind Eigenvektoren von $\\Sigma$',
+      reasoning:
+        'Maximierungsproblem: $\\max_{\\|w\\|=1} w^\\top \\Sigma w$. Lagrange: $\\mathcal{L}(w, \\lambda) = w^\\top \\Sigma w - \\lambda(w^\\top w - 1)$. Ableitung: $\\nabla_w \\mathcal{L} = 2\\Sigma w - 2\\lambda w = 0 \\Rightarrow \\Sigma w = \\lambda w$. Das ist die Eigenvektor-Gleichung. Der Lagrange-Multiplikator $\\lambda = w^\\top \\Sigma w$ ist die projizierte Varianz. Größter Eigenwert → größte Varianz → erste Hauptkomponente.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Unkorreliertheit ($\\text{Cov}=0$) bedeutet Unabhängigkeit',
+      correct: 'Unabhängigkeit impliziert Unkorreliertheit, aber nicht umgekehrt',
+      explanation:
+        'Klassisches Gegenbeispiel: $X \\sim \\mathcal{N}(0,1)$, $Y = X^2$. Dann $\\text{Cov}(X,Y) = 0$ (wegen Symmetrie von $\\mathcal{N}$), aber $Y$ hängt vollständig von $X$ ab. Nur für multivariate Normalverteilung gilt: unkorreliert ⟺ unabhängig.',
+    },
+    {
+      wrong: 'Kovarianzmatrix ist immer positiv definit',
+      correct: 'Kovarianzmatrix ist positiv **semi**definit — kann singuläre Eigenwerte haben',
+      explanation:
+        'Wenn $d > n$ (mehr Features als Datenpunkte) oder Features linear abhängig sind, ist $\\Sigma$ singulär (Rang $< d$) → nicht invertierbar. Regularisierung $(\\Sigma + \\epsilon I)$ löst das für numerische Stabilität.',
+    },
+    {
+      wrong: 'PCA dekorreliert Features vollständig (macht sie unabhängig)',
+      correct: 'PCA macht Features **linear unkorreliert** ($\\text{Cov}=0$), aber nicht notwendigerweise unabhängig',
+      explanation:
+        'Nach PCA-Transformation gilt $\\text{Cov}(Z_i, Z_j) = 0$. Für normalverteilte Daten impliziert das Unabhängigkeit. Für nicht-normalverteilte Daten kann nichtlineare Abhängigkeit bestehen.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'StatQuest: "PCA Step-by-Step" (YouTube)',
+      type: 'video',
+      note: 'Schrittweise PCA-Herleitung via Kovarianzmatrix und Eigenvektoren',
+    },
+    {
+      title: 'MML Book, Kapitel 10: "Dimensionality Reduction with Principal Component Analysis"',
+      type: 'book',
+      note: 'Komplette PCA-Herleitung mit Kovarianzmatrix; kostenloser PDF auf mml-book.github.io',
+    },
+    {
+      title: '3Blue1Brown: "A 2016 ICML talk — PCA as optimization" (YouTube)',
+      type: 'video',
+      note: 'Geometrische Sicht auf Kovarianzellipsen und Eigenvektoren',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.erwartungswert-varianz',
+      relation: 'requires',
+      hint: 'Varianz und Kovarianz sind Erwartungswert-Ausdrücke — Lektion 05 legt das Fundament.',
+    },
+    {
+      lessonId: 'p1.eigenwerte-eigenvektoren',
+      relation: 'requires',
+      hint: 'PCA nutzt die Eigenwertzerlegung der Kovarianzmatrix — Lektion p1.eigenwerte-eigenvektoren.',
+    },
+    {
+      lessonId: 'p1.spektraltheorem',
+      relation: 'see-also',
+      hint: 'Spektralsatz garantiert orthogonale Eigenvektoren für $\\Sigma$ (symmetrisch) — Basis der PCA-Geometrie.',
+    },
+    {
+      lessonId: 'p1.map-regularisierung-bias-variance',
+      relation: 'see-also',
+      hint: 'Gauß-Prior auf Gewichten entspricht multivariater Normalverteilung — Kovarianzstruktur bestimmt Regularisierungsform.',
+    },
+  ],
+
+  reflection: 'Die Kovarianzmatrix ist das Bindeglied zwischen Statistik, linearer Algebra und ML. PCA, Gauß-Prozesse, multivariate Regression, Mahalanobis-Distanz — alle beruhen auf $\\Sigma$. **Was hat dich mehr überrascht: dass PCA direkt aus dem Maximierungsproblem auf $\\Sigma$ folgt, oder die geometrische Ellipsen-Interpretation?**',
 }

@@ -190,4 +190,159 @@ export const spektraltheorem: Lesson = {
       conceptTags: ['psd', 'covariance'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst den Spektraltheorem für symmetrische Matrizen formulieren und anwenden, positiv (semi-)definite Matrizen an ihren Eigenwerten erkennen, die Spektralzerlegung $A = Q\\Lambda Q^T$ interpretieren und erklären, warum Kovarianzmatrizen, Gram-Matrizen und Hessische immer PSD sind.',
+
+  description:
+    'Der Spektraltheorem ist einer der schönsten Sätze der Linearen Algebra: Jede symmetrische Matrix hat reelle Eigenwerte und orthonormale Eigenvektoren. Das ist keine Zufälligkeit — es ist das Fundament von PCA, der Konvexitätsanalyse von Loss-Funktionen und der Stabilität numerischer Algorithmen.',
+
+  conceptSteps: [
+    {
+      title: 'Symmetrische Matrizen: die besondere Klasse',
+      preprompt: 'Warum sind Kovarianzmatrizen, Hessische und Gram-Matrizen alle symmetrisch?',
+      body: 'Eine Matrix $A \\in \\mathbb{R}^{n \\times n}$ ist **symmetrisch**, wenn $A = A^T$, d.h. $A_{ij} = A_{ji}$.\n\n**Beispiele**:\n- Kovarianzmatrix $\\Sigma = \\frac{1}{n} X^T X$: $(\\Sigma)^T = (X^T X)^T = X^T X = \\Sigma$ ✓\n- Hesse-Matrix $H_{ij} = \\partial^2 f/\\partial x_i \\partial x_j = H_{ji}$ (Satz von Schwarz) ✓\n- Gram-Matrix $K = XX^T$: $(XX^T)^T = X X^T = K$ ✓\n\nSymmetrische Matrizen haben außergewöhnliche Eigenschaften.',
+    },
+    {
+      title: 'Spektraltheorem: die Hauptaussage',
+      body: '**Spektraltheorem**: Jede symmetrische Matrix $A \\in \\mathbb{R}^{n \\times n}$ hat:\n\n1. Nur **reelle** Eigenwerte $\\lambda_1, \\dots, \\lambda_n \\in \\mathbb{R}$\n2. **Orthonormale** Eigenvektoren $q_1, \\dots, q_n$ (paarweise senkrecht, Länge 1)\n3. **Orthogonale Diagonalisierung**: $A = Q\\Lambda Q^T$\n\n$$Q = (q_1 | \\cdots | q_n) \\quad \\text{orthogonal}, \\quad \\Lambda = \\text{diag}(\\lambda_1, \\dots, \\lambda_n)$$',
+    },
+    {
+      title: 'Orthogonale Diagonalisierung und Spektralzerlegung',
+      body: 'Die Zerlegung $A = Q\\Lambda Q^T$ lässt sich als **Spektralzerlegung** schreiben:\n\n$$A = \\sum_{i=1}^n \\lambda_i q_i q_i^T$$\n\nJeder Term $\\lambda_i q_i q_i^T$ ist eine **Rang-1-Matrix** — eine "Schicht" der Abbildung.\n\nBedeutung: $A$ wirkt als gewichtete Summe von Projektionen auf die Eigenrichtungen.\n\n**Anwendung $A\\mathbf{x}$**: Projiziere $\\mathbf{x}$ auf jede Eigenrichtung, strecke mit $\\lambda_i$, rekombiniere.',
+      miniExample: '$A = \\begin{pmatrix}2&1\\\\1&2\\end{pmatrix}$: EVe $q_1 = (1,1)^T/\\sqrt{2}$, $q_2 = (1,-1)^T/\\sqrt{2}$. EWe $\\lambda_1=3$, $\\lambda_2=1$. Spektralzerlegung: $A = 3 q_1 q_1^T + 1 \\cdot q_2 q_2^T$.',
+    },
+    {
+      title: 'Positiv semidefinite (PSD) Matrizen',
+      body: 'Eine symmetrische Matrix $A$ ist:\n\n- **Positiv definit** (PD): $\\mathbf{x}^T A \\mathbf{x} > 0$ für alle $\\mathbf{x} \\neq \\vec{0}$ ↔ alle $\\lambda_i > 0$\n- **Positiv semidefinit** (PSD): $\\mathbf{x}^T A \\mathbf{x} \\geq 0$ für alle $\\mathbf{x}$ ↔ alle $\\lambda_i \\geq 0$\n- **Indefinit**: hat positive und negative Eigenwerte ↔ Sattelpunkt\n\n**Konvexitätstest**: Die Hesse-Matrix $H$ einer Funktion ist PSD ↔ die Funktion ist konvex.',
+      selfCheck: 'Warum impliziert $\\mathbf{x}^T A \\mathbf{x} \\geq 0$ für alle $\\mathbf{x}$, dass alle Eigenwerte $\\geq 0$ sind?',
+    },
+    {
+      title: 'PSD-Check: $X^T X$ ist immer PSD',
+      body: 'Für **jede** Matrix $X \\in \\mathbb{R}^{m \\times n}$ gilt: $X^T X$ ist PSD.\n\n**Beweis**:\n\n$$\\mathbf{x}^T (X^T X) \\mathbf{x} = (X\\mathbf{x})^T (X\\mathbf{x}) = \\|X\\mathbf{x}\\|_2^2 \\geq 0$$\n\n**Konsequenz**: Alle Eigenwerte von $X^T X$ sind $\\geq 0$. Die Singulärwerte $\\sigma_i = \\sqrt{\\lambda_i(X^T X)} \\geq 0$ sind reell — SVD funktioniert immer.',
+    },
+    {
+      title: 'ML: PSD-Matrizen überall in ML',
+      body: 'Die wichtigsten PSD-Matrizen in ML:\n\n- **Kovarianzmatrix** $\\Sigma = \\frac{1}{n} X^T X$: PSD → reelle, nicht-negative Eigenwerte = Varianzen\n- **Gram-Matrix** $K = X X^T$: PSD → Kernel-Methoden (SVM, Gaussian Processes) funktionieren\n- **Hessische** des MSE: $H = \\frac{2}{n} X^T X$: PSD → Loss-Funktion der linearen Regression ist konvex\n- **Fisher-Information**: PSD → Cramér-Rao-Schranke wohldefiniert\n\nPSD = "kann man sicher optimieren" — alle lokalen Minima sind global.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'NumPy: Spektralzerlegung und PSD-Check',
+      lang: 'python',
+      code: `import numpy as np
+
+# --- 1. Symmetrische Matrix diagonalisieren (Spektraltheorem) ---
+A = np.array([[2.0, 1.0],
+              [1.0, 2.0]])  # symmetrisch
+
+# numpy.linalg.eigh: speziell für symmetrische/hermitesche Matrizen
+# Garantiert reelle Eigenwerte, stabiler als eig
+eigenvalues, eigenvectors = np.linalg.eigh(A)
+# eigenvalues = [1., 3.] (aufsteigend sortiert)
+# eigenvectors: Spalten sind orthonormale Eigenvektoren
+
+# Probe: Spektralzerlegung A = Q Λ Q^T
+Q = eigenvectors
+Lambda = np.diag(eigenvalues)
+A_reconstructed = Q @ Lambda @ Q.T
+print(np.allclose(A, A_reconstructed))   # True
+
+# --- 2. PSD-Check via Eigenwerte ---
+def is_psd(M, tol=1e-8):
+    """Prüfe ob M positiv semidefinit ist."""
+    eigenvalues = np.linalg.eigh(M)[0]
+    return np.all(eigenvalues >= -tol)
+
+# Kovarianzmatrix aus Daten
+np.random.seed(42)
+X = np.random.randn(50, 4)
+Sigma = (X.T @ X) / (len(X) - 1)   # empirische Kovarianzmatrix
+print(f"Kovarianzmatrix ist PSD: {is_psd(Sigma)}")   # True
+
+# --- 3. Spektralzerlegung als Rang-1-Summe ---
+eigenvalues, Q = np.linalg.eigh(Sigma)
+# A = Σ λ_i * q_i * q_i^T
+A_approx = sum(eigenvalues[i] * np.outer(Q[:, i], Q[:, i])
+               for i in range(len(eigenvalues)))
+print(np.allclose(Sigma, A_approx))  # True
+
+# --- 4. Rang-k-Approximation (bester Rang-k-Schnitt) ---
+k = 2
+A_k = sum(eigenvalues[-(i+1)] * np.outer(Q[:, -(i+1)], Q[:, -(i+1)])
+          for i in range(k))
+print(f"Approximationsfehler (Frobenius): {np.linalg.norm(Sigma - A_k, 'fro'):.4f}")`,
+      annotation: '`np.linalg.eigh` ist für symmetrische Matrizen optimiert und garantiert reelle Eigenwerte (numerisch stabil). Verwende immer `eigh` statt `eig` für Kovarianzmatrizen und Hessische. Die Spektralzerlegung $A = \\sum_i \\lambda_i q_i q_i^T$ = `sum(...np.outer(q, q)...)` zeigt die Rang-1-Struktur. Der PSD-Check über Eigenwerte ist zuverlässiger als der Cholesky-Versuch (numerische Instabilität nahe der Grenze).',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Eigenvektoren zu verschiedenen Eigenwerten einer symmetrischen Matrix sind orthogonal',
+      reasoning:
+        'Seien $\\lambda_1 \\neq \\lambda_2$ und $A q_1 = \\lambda_1 q_1$, $A q_2 = \\lambda_2 q_2$. Dann: $\\lambda_1 (q_1^T q_2) = (Aq_1)^T q_2 = q_1^T A^T q_2 = q_1^T A q_2 = q_1^T (\\lambda_2 q_2) = \\lambda_2 (q_1^T q_2)$. Also $(\\lambda_1 - \\lambda_2)(q_1^T q_2) = 0$. Da $\\lambda_1 \\neq \\lambda_2$: $q_1^T q_2 = 0$ — orthogonal!',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Jede reelle quadratische Matrix hat reelle Eigenwerte',
+      correct: 'Nur symmetrische (und allgemeiner: selbstadjungierte) Matrizen haben garantiert reelle Eigenwerte',
+      explanation: 'Rotationsmatrizen (z.B. $90°$-Rotation) sind nicht symmetrisch und haben komplexe Eigenwerte $\\pm i$. Der Spektraltheorem gilt nur für $A = A^T$.',
+    },
+    {
+      wrong: 'Eine PSD-Matrix hat alle Einträge $\\geq 0$',
+      correct: 'PSD bedeutet alle Eigenwerte $\\geq 0$, nicht alle Einträge $\\geq 0$',
+      explanation: '$\\begin{pmatrix}2 & -1 \\\\ -1 & 2\\end{pmatrix}$ ist PSD (EWe: $1, 3$), hat aber negative Einträge. Umgekehrt kann eine Matrix mit allen positiven Einträgen indefinit sein.',
+    },
+    {
+      wrong: 'Für den PSD-Check genügt es, die Diagonale zu prüfen',
+      correct: 'PSD erfordert, alle Eigenwerte zu prüfen (oder Cholesky-Zerlegung zu versuchen)',
+      explanation: 'Positive Diagonaleinträge sind notwendig, aber nicht hinreichend für PSD. Die korrekte Prüfung: `np.linalg.eigh(A)[0].min() >= 0` oder Cholesky-Zerlegung ohne Fehler.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: "Abstract vector spaces" (Essence of Linear Algebra, Ep. 15)',
+      type: 'video',
+      note: 'Vertieft den Zusammenhang zwischen Symmetrie und Eigenstrukturen',
+    },
+    {
+      title: 'MML Book, Kapitel 4.2: "Eigendecomposition and Diagonalization"',
+      type: 'book',
+      note: 'Spektraltheorem und PSD-Matrizen rigoros, mit PCA-Anwendung',
+    },
+    {
+      title: 'Trefethen & Bau: "Numerical Linear Algebra", Kapitel zur Hermiteschen Eigenwertzersetzung',
+      type: 'book',
+      note: 'Numerische Aspekte; warum eigh stabiler als eig für symmetrische Matrizen ist',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.eigenwerte-eigenvektoren',
+      relation: 'requires',
+      hint: 'Eigenwerte und Eigenvektoren sind die Grundlage des Spektraltheorems.',
+    },
+    {
+      lessonId: 'p1.svd',
+      relation: 'extends',
+      hint: 'SVD verallgemeinert den Spektraltheorem auf beliebige (nicht-quadratische) Matrizen.',
+    },
+    {
+      lessonId: 'p1.jacobi-hesse',
+      relation: 'see-also',
+      hint: 'Die Hesse-Matrix ist symmetrisch (Satz von Schwarz) — der Spektraltheorem garantiert reelle Krümmungseigenwerte.',
+    },
+    {
+      lessonId: 'p1.determinante',
+      relation: 'see-also',
+      hint: 'Für symmetrische Matrizen: $\\det A = \\prod_i \\lambda_i \\geq 0$ (wenn PSD).',
+    },
+  ],
+
+  reflection: 'Der Spektraltheorem macht symmetrische Matrizen zu den "zahmen" Matrizen der Linearen Algebra: reelle Eigenwerte, orthogonale Eigenrichtungen, alles wohldefiniert. Kovarianzmatrizen, Hessische, Gram-Matrizen — sie alle sind symmetrisch, und deshalb funktioniert PCA, funktioniert Konvexitätsanalyse, funktioniert Kernel-Methoden. **Welche dieser drei Anwendungen findest du am überraschendsten?**',
 }
