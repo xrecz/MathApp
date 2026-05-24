@@ -39,6 +39,16 @@ import { multivariableFunktionen } from '../src/content/phase1/calculus/07-multi
 import { partielleAbleitungenGradient } from '../src/content/phase1/calculus/08-partielle-ableitungen-gradient'
 import { multivariateKettenregelBackprop } from '../src/content/phase1/calculus/09-multivariate-kettenregel-backprop'
 import { jacobiHesse } from '../src/content/phase1/calculus/10-jacobi-hesse'
+import { zufallsvariablen } from '../src/content/phase1/stochastik/01-zufallsvariablen'
+import { pmfPdfCdf } from '../src/content/phase1/stochastik/02-pmf-pdf-cdf'
+import { diskreteVerteilungen } from '../src/content/phase1/stochastik/03-diskrete-verteilungen'
+import { kontinuierlicheVerteilungen } from '../src/content/phase1/stochastik/04-kontinuierliche-verteilungen'
+import { erwartungswertVarianz } from '../src/content/phase1/stochastik/05-erwartungswert-varianz'
+import { kovarianzMultivariateGauss } from '../src/content/phase1/stochastik/06-kovarianz-multivariate-gauss'
+import { bedingteWahrscheinlichkeit } from '../src/content/phase1/stochastik/07-bedingte-wahrscheinlichkeit'
+import { bayesTheorem } from '../src/content/phase1/stochastik/08-bayes-theorem'
+import { mle } from '../src/content/phase1/stochastik/09-mle'
+import { mapRegularisierungBiasVariance } from '../src/content/phase1/stochastik/10-map-regularisierung-bias-variance'
 import type { Lesson, Exercise } from '../src/types'
 
 const phase0Lessons: Lesson[] = [
@@ -90,7 +100,20 @@ const phase1CalculusLessons: Lesson[] = [
   jacobiHesse,
 ]
 
-const lessons: Lesson[] = [...phase0Lessons, ...phase1LinalgLessons, ...phase1CalculusLessons]
+const phase1StochastikLessons: Lesson[] = [
+  zufallsvariablen,
+  pmfPdfCdf,
+  diskreteVerteilungen,
+  kontinuierlicheVerteilungen,
+  erwartungswertVarianz,
+  kovarianzMultivariateGauss,
+  bedingteWahrscheinlichkeit,
+  bayesTheorem,
+  mle,
+  mapRegularisierungBiasVariance,
+]
+
+const lessons: Lesson[] = [...phase0Lessons, ...phase1LinalgLessons, ...phase1CalculusLessons, ...phase1StochastikLessons]
 
 function validateLesson(lesson: Lesson): string[] {
   const errors: string[] = []
@@ -144,8 +167,12 @@ describe('Content Schema Validation', () => {
     expect(phase1CalculusLessons).toHaveLength(10)
   })
 
-  it('40 total lessons are registered', () => {
-    expect(lessons).toHaveLength(40)
+  it('10 phase-1 stochastik lessons are registered', () => {
+    expect(phase1StochastikLessons).toHaveLength(10)
+  })
+
+  it('50 total lessons are registered', () => {
+    expect(lessons).toHaveLength(50)
   })
 
   lessons.forEach(lesson => {
