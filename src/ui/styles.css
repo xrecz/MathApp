@@ -76,6 +76,27 @@
     padding-top: max(8px, var(--safe-top));
     padding-bottom: 8px;
   }
+
+  /* Lesson-Flow: Bottom-Nav ausblenden, Content-Padding entfernen */
+  body[data-in-lesson="true"] .bottom-nav {
+    display: none;
+  }
+  body[data-in-lesson="true"] #content {
+    padding-bottom: 0;
+  }
+
+  /* Sticky Action-Bar für alle Lesson-Screens */
+  .action-bar {
+    position: sticky;
+    bottom: 0;
+    padding-top: 12px;
+    padding-bottom: calc(16px + var(--safe-bottom));
+    background: rgb(11 16 32 / 97%);
+    border-top: 1px solid rgb(255 255 255 / 8%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 20;
+  }
 }
 
 @layer utilities {

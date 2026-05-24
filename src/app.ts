@@ -16,7 +16,13 @@ import './ui/components/HintsAccordion'
 import './ui/components/Button'
 import './ui/components/Card'
 
+function setLessonMode(active: boolean): void {
+  document.body.dataset['inLesson'] = String(active)
+}
+
 async function route(path: string, container: HTMLElement): Promise<void> {
+  setLessonMode(path.startsWith('/lesson/'))
+
   // Skeleton loader
   container.innerHTML = `<div class="flex items-center justify-center min-h-screen">
     <div class="animate-pulse text-gray-500 text-sm">Laden…</div>
@@ -71,6 +77,7 @@ function updateBottomNav(path: string): void {
 function createBottomNav(): HTMLElement {
   const nav = document.createElement('nav')
   nav.className = [
+    'bottom-nav',
     'fixed bottom-0 left-0 right-0 max-w-lg mx-auto',
     'bg-surface-900/95 backdrop-blur-md border-t border-surface-700',
     'grid grid-cols-4 pb-safe',

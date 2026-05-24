@@ -8,7 +8,7 @@ import { recordActivity, xpForAnswer, XP_LESSON_BONUS } from '../../engine/sessi
 import { renderMath } from '../../lib/katex'
 import { renderMarkdown, renderBlock } from '../components/MathRender'
 import { haptic } from '../../lib/haptics'
-import type { Lesson, Exercise } from '../../types'
+import type { Lesson, Exercise, MasteryLevel } from '../../types'
 import '../components/MathKeyboard'
 import '../components/HintsAccordion'
 
@@ -43,9 +43,17 @@ export async function renderLessonScreen(container: HTMLElement, lessonId: strin
   let xpEarned = 0
   let practiceIdx = 0
 
+  const allTopics = course.phases.flatMap(p => p.topics)
+  const parentTopic = allTopics.find(t => t.lessons.some(l => l.id === lessonId))
+  const prereqTitles = (parentTopic?.prerequisites ?? [])
+    .map(id => allTopics.find(t => t.id === id)?.title ?? id)
+  const topicId = parentTopic?.id ?? ''
+
   function render() {
     switch (fsm.current) {
-      case 'INTRO':          renderIntro(container, lesson!, fsm, render); break
+      case 'INTRO':
+        renderIntro(container, lesson!, topicId, prereqTitles, existing?.masteryLevel ?? null, fsm, render)
+        break
       case 'CONCEPT':        renderBlocks(container, lesson!.blocks.show, 'Konzept', fsm, render); break
       case 'WORKED_EXAMPLE': renderBlocks(container, lesson!.blocks.explain, 'Beispiel', fsm, render); break
       case 'PRACTICE':       renderPractice(container, lesson!, practiceIdx, fsm, render, onCorrect, onIncorrect); break
@@ -86,33 +94,77 @@ export async function renderLessonScreen(container: HTMLElement, lessonId: strin
   obs.observe(container, { childList: true, subtree: false })
 }
 
-function renderIntro(container: HTMLElement, lesson: Lesson, fsm: LessonStateMachine, onNext: () => void) {
+function topicEmoji(topicId: string): string {
+  if (topicId.includes('stochastik') || topicId.includes('statistik')) return '🎲'
+  if (topicId.includes('calculus')) return '📈'
+  if (topicId.includes('linalg')) return '📊'
+  if (topicId.includes('funktion')) return '📐'
+  return '📚'
+}
+
+function masteryDots(level: MasteryLevel): string {
+  const filled = ({ attempted: 1, familiar: 2, proficient: 4, mastered: 5 } as Record<MasteryLevel, number>)[level] ?? 0
+  const dots = Array(5).fill(0)
+    .map((_, i) => `<span class="${i < filled ? 'text-brand-400' : 'text-gray-600'}">●</span>`)
+    .join('')
+  return `<span class="tracking-widest">${dots}</span> <span class="text-xs text-gray-400">${masteryLabel(level)}</span>`
+}
+
+function renderIntro(
+  container: HTMLElement,
+  lesson: Lesson,
+  topicId: string,
+  prereqTitles: string[],
+  masteryLevel: MasteryLevel | null,
+  fsm: LessonStateMachine,
+  onNext: () => void,
+) {
+  const prereqHtml = prereqTitles.length > 0 ? `
+    <section class="px-4 py-3 border-t border-surface-700">
+      <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Voraussetzungen</h2>
+      <ul class="space-y-1.5">
+        ${prereqTitles.map(t => `<li class="text-sm text-gray-400">○ ${t}</li>`).join('')}
+      </ul>
+    </section>` : ''
+
   container.innerHTML = `
-    <div class="screen pb-24">
+    <div class="screen block-transition">
       <div class="top-bar gap-3">
         <button id="back-btn" class="text-gray-400 hover:text-white text-xl no-tap-highlight">←</button>
-        <div class="flex-1 progress-track">
-          <div class="progress-fill" style="width:0%"></div>
-        </div>
       </div>
-      <div class="flex-1 flex flex-col items-center justify-center py-8 text-center px-2">
-        <div class="text-4xl mb-4">📐</div>
-        <h1 class="text-2xl font-bold mb-3">${lesson.title}</h1>
-        <p class="text-gray-400 mb-4">≈ ${lesson.estimatedMinutes} Min. · ${lesson.blocks.practice.length} Aufgaben</p>
-        <div class="flex flex-wrap gap-2 justify-center mb-6">
-          ${lesson.conceptTags.map(t =>
-            `<span class="px-2 py-1 bg-brand-900/40 border border-brand-500/30 text-brand-300 rounded-full text-xs">${t}</span>`
-          ).join('')}
+
+      <div class="flex-1">
+        <div class="flex items-start gap-4 px-4 pt-2 pb-6">
+          <div class="text-5xl leading-none mt-1 flex-shrink-0">${topicEmoji(topicId)}</div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-xl font-bold leading-tight mb-1">${lesson.title}</h1>
+            <p class="text-gray-400 text-sm mb-2">
+              ≈ ${lesson.estimatedMinutes} Min · ${lesson.blocks.practice.length} Aufgaben
+            </p>
+            ${masteryLevel ? `<div class="text-sm">${masteryDots(masteryLevel)}</div>` : ''}
+          </div>
         </div>
+
+        ${prereqHtml}
+
+        <section class="px-4 py-3 border-t border-surface-700">
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Themen</h2>
+          <div class="flex flex-wrap gap-2">
+            ${lesson.conceptTags.map(t =>
+              `<span class="px-2 py-1 bg-brand-900/40 border border-brand-500/30 text-brand-300 rounded-full text-xs">${t}</span>`
+            ).join('')}
+          </div>
+        </section>
       </div>
-      <div class="fixed bottom-6 right-4 left-4 max-w-lg mx-auto flex gap-3">
-        <button id="skip-btn" class="btn-secondary flex-1">Überspringen</button>
-        <button id="start-btn" class="btn-primary flex-grow no-tap-highlight">Starten →</button>
+
+      <div class="action-bar">
+        <button id="start-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
+          Beginnen →
+        </button>
       </div>
     </div>`
 
   container.querySelector('#back-btn')?.addEventListener('click', () => navigate('/'))
-  container.querySelector('#skip-btn')?.addEventListener('click', () => { fsm.transition('SKIP'); onNext() })
   container.querySelector('#start-btn')?.addEventListener('click', () => {
     haptic.light()
     fsm.transition('NEXT')
@@ -130,7 +182,7 @@ function renderBlocks(
   const blocksHtml = blocks.map(b => renderBlock(b.kind, b.content, b.caption)).join('')
 
   container.innerHTML = `
-    <div class="screen pb-24 block-transition">
+    <div class="screen block-transition">
       <div class="top-bar gap-3">
         <button id="back-btn" class="text-gray-400 hover:text-white text-xl no-tap-highlight">←</button>
         <span class="text-sm text-gray-400 font-medium">${phase}</span>
@@ -138,8 +190,8 @@ function renderBlocks(
           <div class="progress-fill" style="width:${phase === 'ML-Bezug' ? '90' : phase === 'Beispiel' ? '55' : '25'}%"></div>
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto py-4 px-1">${blocksHtml}</div>
-      <div class="fixed bottom-6 right-4 left-4 max-w-lg mx-auto">
+      <div class="flex-1 py-4 px-1">${blocksHtml}</div>
+      <div class="action-bar">
         <button id="next-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
           Weiter →
         </button>
@@ -171,7 +223,7 @@ function renderPractice(
   const pct = Math.round(((idx + 1) / lesson.blocks.practice.length) * 100)
 
   container.innerHTML = `
-    <div class="screen pb-4 block-transition">
+    <div class="screen block-transition">
       <div class="top-bar gap-3">
         <button id="back-btn" class="text-gray-400 hover:text-white text-xl no-tap-highlight">←</button>
         <span class="text-sm text-gray-400">Aufgabe ${idx + 1}/${lesson.blocks.practice.length}</span>
@@ -180,7 +232,7 @@ function renderPractice(
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto py-4">
+      <div class="flex-1 py-4">
         <div class="card mb-4">
           <div class="text-xs text-gray-400 mb-2">
             ${'★'.repeat(ex.difficulty)}${'☆'.repeat(5 - ex.difficulty)}
@@ -194,7 +246,7 @@ function renderPractice(
         <hints-accordion id="hints"></hints-accordion>
       </div>
 
-      <div class="sticky bottom-0 bg-surface-900/95 backdrop-blur-sm pt-2 pb-safe-4 space-y-2 px-0">
+      <div class="action-bar">
         <div class="flex gap-2">
           <button id="hint-btn" class="btn-secondary flex-1 text-yellow-400 text-sm no-tap-highlight
             ${hintLevel >= 3 ? 'opacity-40 cursor-not-allowed' : ''}">
