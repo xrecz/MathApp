@@ -30,6 +30,24 @@ export interface ReviewCard {
   conceptTags: string[]
 }
 
+// Phase-O pedagogical extension types (all optional, backwards-compatible)
+export interface Derivation {
+  claim: string       // Markdown+Math: die zu zeigende Aussage
+  reasoning: string   // Schritt-für-Schritt-Begründung, Markdown
+}
+
+export interface CommonMistake {
+  wrong: string       // Was Lerner oft falsch machen, Markdown
+  correct: string     // Was richtig ist, Markdown
+  explanation: string // Warum, kurz, Markdown
+}
+
+export interface FurtherResource {
+  title: string       // z.B. "3Blue1Brown: Essence of Linear Algebra Ep. 14"
+  type: 'video' | 'article' | 'exercise' | 'book'
+  note?: string       // Optionale Anmerkung, z.B. "Sehr visuell"
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -42,6 +60,11 @@ export interface Lesson {
     deepen: Block[]
   }
   reviewCards: ReviewCard[]
+  // Phase-O optionale Vertiefungsfelder
+  description?: string
+  derivations?: Derivation[]
+  commonMistakes?: CommonMistake[]
+  furtherResources?: FurtherResource[]
 }
 
 export interface Topic {

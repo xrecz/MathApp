@@ -118,6 +118,28 @@ math-keyboard { display: block; }
          transition-colors duration-100 select-none no-tap-highlight;
 }
 
+/* ─── Phase-O: Pedagogical blocks ───────────────────────────── */
+
+.derivation-card {
+  background: rgb(99 102 241 / 8%);
+  border-left: 3px solid rgb(99 102 241);
+  padding: 12px 14px;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+}
+.derivation-card__claim { font-weight: 600; margin-bottom: 6px; }
+.derivation-card__reasoning { color: rgb(156 163 175); font-size: 14px; }
+
+.mistake-card {
+  background: rgb(220 38 38 / 8%);
+  border-left: 3px solid rgb(220 38 38);
+  padding: 12px 14px;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+}
+.mistake-card__wrong { text-decoration: line-through; color: rgb(248 113 113); }
+.mistake-card__correct { color: rgb(74 222 128); font-weight: 500; }
+
 /* ─── Animations ──────────────────────────────────────────────── */
 
 /* Block-level slide-up fade on screen transitions */

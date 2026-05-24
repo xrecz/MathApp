@@ -49,7 +49,7 @@ import { bedingteWahrscheinlichkeit } from '../src/content/phase1/stochastik/07-
 import { bayesTheorem } from '../src/content/phase1/stochastik/08-bayes-theorem'
 import { mle } from '../src/content/phase1/stochastik/09-mle'
 import { mapRegularisierungBiasVariance } from '../src/content/phase1/stochastik/10-map-regularisierung-bias-variance'
-import type { Lesson, Exercise } from '../src/types'
+import type { Lesson, Exercise, Derivation, CommonMistake, FurtherResource } from '../src/types'
 
 const phase0Lessons: Lesson[] = [
   brueche,
@@ -132,6 +132,24 @@ function validateLesson(lesson: Lesson): string[] {
   lesson.blocks.practice.forEach((ex, i) => {
     const exErrors = validateExercise(ex)
     exErrors.forEach(e => errors.push(`exercise[${i}]: ${e}`))
+  })
+
+  lesson.derivations?.forEach((d: Derivation, i: number) => {
+    if (!d.claim) errors.push(`derivation[${i}]: claim required`)
+    if (!d.reasoning) errors.push(`derivation[${i}]: reasoning required`)
+  })
+
+  lesson.commonMistakes?.forEach((m: CommonMistake, i: number) => {
+    if (!m.wrong) errors.push(`commonMistake[${i}]: wrong required`)
+    if (!m.correct) errors.push(`commonMistake[${i}]: correct required`)
+    if (!m.explanation) errors.push(`commonMistake[${i}]: explanation required`)
+  })
+
+  lesson.furtherResources?.forEach((r: FurtherResource, i: number) => {
+    if (!r.title) errors.push(`furtherResource[${i}]: title required`)
+    if (!['video', 'article', 'exercise', 'book'].includes(r.type)) {
+      errors.push(`furtherResource[${i}]: invalid type "${r.type}"`)
+    }
   })
 
   return errors

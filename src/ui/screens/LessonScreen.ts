@@ -8,7 +8,7 @@ import { recordActivity, xpForAnswer, XP_LESSON_BONUS } from '../../engine/sessi
 import { renderMath } from '../../lib/katex'
 import { renderMarkdown, renderBlock } from '../components/MathRender'
 import { haptic } from '../../lib/haptics'
-import type { Lesson, Exercise, MasteryLevel } from '../../types'
+import type { Lesson, Exercise, MasteryLevel, Derivation, CommonMistake, FurtherResource } from '../../types'
 import '../components/MathKeyboard'
 import '../components/HintsAccordion'
 
@@ -54,10 +54,19 @@ export async function renderLessonScreen(container: HTMLElement, lessonId: strin
       case 'INTRO':
         renderIntro(container, lesson!, topicId, prereqTitles, existing?.masteryLevel ?? null, fsm, render)
         break
-      case 'CONCEPT':        renderBlocks(container, lesson!.blocks.show, 'Konzept', fsm, render); break
-      case 'WORKED_EXAMPLE': renderBlocks(container, lesson!.blocks.explain, 'Beispiel', fsm, render); break
-      case 'PRACTICE':       renderPractice(container, lesson!, practiceIdx, fsm, render, onCorrect, onIncorrect); break
-      case 'DEEPEN':         renderBlocks(container, lesson!.blocks.deepen, 'ML-Bezug', fsm, render); break
+      case 'CONCEPT':
+        renderBlocks(container, lesson!.blocks.show, 'Konzept', fsm, render,
+          renderMistakesHtml(lesson!.commonMistakes))
+        break
+      case 'WORKED_EXAMPLE':
+        renderBlocks(container, lesson!.blocks.explain, 'Beispiel', fsm, render,
+          renderDerivationsHtml(lesson!.derivations))
+        break
+      case 'PRACTICE': renderPractice(container, lesson!, practiceIdx, fsm, render, onCorrect, onIncorrect); break
+      case 'DEEPEN':
+        renderBlocks(container, lesson!.blocks.deepen, 'ML-Bezug', fsm, render,
+          renderResourcesHtml(lesson!.furtherResources))
+        break
       case 'COMPLETE':       renderComplete(container, lesson!, xpEarned, mastery); break
     }
   }
@@ -172,12 +181,43 @@ function renderIntro(
   })
 }
 
+function renderDerivationsHtml(derivations: Derivation[] | undefined): string {
+  if (!derivations?.length) return ''
+  const items = derivations.map(d => `
+    <div class="derivation-card math-block">
+      <div class="derivation-card__claim">${renderMarkdown(d.claim)}</div>
+      <div class="derivation-card__reasoning">${renderMarkdown(d.reasoning)}</div>
+    </div>`).join('')
+  return `<div class="mt-4"><h3 class="text-xs font-semibold uppercase tracking-wide text-brand-400 mb-2 px-1">Warum gilt das?</h3>${items}</div>`
+}
+
+function renderMistakesHtml(mistakes: CommonMistake[] | undefined): string {
+  if (!mistakes?.length) return ''
+  const items = mistakes.map(m => `
+    <div class="mistake-card math-block">
+      <div class="mistake-card__wrong">${renderMarkdown(m.wrong)}</div>
+      <div class="mistake-card__correct">${renderMarkdown(m.correct)}</div>
+      <div class="mistake-card__explanation text-sm text-gray-400 mt-1">${renderMarkdown(m.explanation)}</div>
+    </div>`).join('')
+  return `<div class="mt-4"><h3 class="text-xs font-semibold uppercase tracking-wide text-red-400 mb-2 px-1">Häufige Fehler</h3>${items}</div>`
+}
+
+function renderResourcesHtml(resources: FurtherResource[] | undefined): string {
+  if (!resources?.length) return ''
+  const typeIcon: Record<string, string> = { video: '▶', article: '📄', exercise: '✏️', book: '📖' }
+  const items = resources.map(r =>
+    `<li class="text-sm text-gray-400">${typeIcon[r.type] ?? '→'} ${r.title}${r.note ? ` <span class="text-gray-500 italic">(${r.note})</span>` : ''}</li>`
+  ).join('')
+  return `<div class="mt-4 px-1"><h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Weiter vertiefen</h3><ul class="space-y-1.5">${items}</ul></div>`
+}
+
 function renderBlocks(
   container: HTMLElement,
   blocks: { kind: string; content: string; caption?: string }[],
   phase: string,
   fsm: LessonStateMachine,
   onNext: () => void,
+  extraHtml = '',
 ) {
   const blocksHtml = blocks.map(b => renderBlock(b.kind, b.content, b.caption)).join('')
 
@@ -190,7 +230,7 @@ function renderBlocks(
           <div class="progress-fill" style="width:${phase === 'ML-Bezug' ? '90' : phase === 'Beispiel' ? '55' : '25'}%"></div>
         </div>
       </div>
-      <div class="flex-1 py-4 px-1">${blocksHtml}</div>
+      <div class="flex-1 py-4 px-1">${blocksHtml}${extraHtml}</div>
       <div class="action-bar">
         <button id="next-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
           Weiter →
