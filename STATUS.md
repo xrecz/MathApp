@@ -41,3 +41,43 @@
   - 4-Tab-Bottom-Navigation mit Safe-Area-Support
   - CSS-Animationen: `block-transition`, `feedback-animate`, `answer-reveal`
   - `prefers-reduced-motion` respektiert
+
+---
+
+## Phase C — Abgeschlossen am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| C0 | ✅ | Voraussetzungs-Check, Stil-Analyse der Seed-Lektionen, Topic-Struktur in `phase0/index.ts` |
+| C1 | ✅ | Rechen-Fundament: Potenzen & Wurzeln, Termumformungen, Quadratische Gleichungen, Ungleichungen |
+| C2 | ✅ | Funktionen-Erweiterung: Quadratische Funktionen, Exponentialfunktionen, Logarithmus, Trigonometrie |
+| C3 | ✅ | Vektoren-Brücke: Vektoren im Raum, Skalarprodukt & Cosine-Similarity |
+| C4 | ✅ | Notation & Logik: Mengen & Quantoren, Mathematische ML-Notation |
+| C5 | ✅ | Statistik-Grundlagen: Mittelwert/Median/Varianz, Wahrscheinlichkeit, Histogramme |
+
+### Phase-C-Ergebnisse
+
+- **Lektionen**: 18 gesamt (3 Seed + 15 neu)
+- **Aufgaben**: 93 Übungsaufgaben (5–6 pro Lektion)
+- **Review-Cards**: 54 gesamt (3 pro Lektion)
+- **Tests**: 88/88 grün (+18 Schema-Tests für alle Lektionen)
+- **Build**: ✅ sauber, keine TypeScript-Fehler (strict mode)
+- **Bundle**: Initial-Chunk **27.30 KB gzipped** ✅ (Ziel: <100 KB)
+- **Lazy-Chunk Phase 0**: 58.00 KB gzipped (Code-Split ✅)
+- **Topics**: 5 (Rechen-Fundament, Funktionen, Vektoren, Notation & Logik, Statistik)
+- **ML-Bezüge** (je Lektion):
+  - L2-Norm, L2-Regularisierung (Potenzen)
+  - MSE-Loss & Backpropagation (Termumformungen)
+  - Lineare Regression, Minimum (Quadratische Gleichungen)
+  - Lernraten-Constraint, KKT-Bedingungen (Ungleichungen)
+  - Gradient Descent, Loss-Parabel (Quadratische Funktionen)
+  - Sigmoid, Softmax (Exponentialfunktionen)
+  - Cross-Entropy-Loss (Logarithmus)
+  - Positional Encodings, Cosine-Similarity (Trigonometrie)
+  - Embeddings, Vektorräume (Vektoren)
+  - Attention-Mechanismus, QKV (Skalarprodukt)
+  - Paper-Notation, Constraint-Formulierungen (Mengen & Logik)
+  - argmax-Vorhersage, Funktionssignaturen (Notation)
+  - Batch Normalization, Z-Score (Statistik)
+  - Softmax-Output-Verteilung (Wahrscheinlichkeit)
+  - Aktivierungs-Histogramme, Loss-Diagnose (Histogramme)

@@ -2,9 +2,43 @@ import { describe, it, expect } from 'vitest'
 import { brueche } from '../src/content/phase0/01-brueche'
 import { lineareFunktionen } from '../src/content/phase0/02-lineare-funktionen'
 import { ersteAbleitungen } from '../src/content/phase0/03-erste-ableitungen'
+import { potenzenWurzeln } from '../src/content/phase0/04-potenzen-wurzeln'
+import { termumformungen } from '../src/content/phase0/05-termumformungen'
+import { quadratischeGleichungen } from '../src/content/phase0/06-quadratische-gleichungen'
+import { ungleichungen } from '../src/content/phase0/07-ungleichungen'
+import { quadratischeFunktionen } from '../src/content/phase0/08-quadratische-funktionen'
+import { exponentialfunktionen } from '../src/content/phase0/09-exponentialfunktionen'
+import { logarithmus } from '../src/content/phase0/10-logarithmus'
+import { trigonometrie } from '../src/content/phase0/11-trigonometrie'
+import { vektoren } from '../src/content/phase0/12-vektoren'
+import { skalarprodukt } from '../src/content/phase0/13-skalarprodukt'
+import { mengenLogik } from '../src/content/phase0/14-mengen-logik'
+import { notation } from '../src/content/phase0/15-notation'
+import { deskriptiveStatistik } from '../src/content/phase0/16-deskriptive-statistik'
+import { wahrscheinlichkeit } from '../src/content/phase0/17-wahrscheinlichkeit'
+import { histogramme } from '../src/content/phase0/18-histogramme'
 import type { Lesson, Exercise } from '../src/types'
 
-const lessons: Lesson[] = [brueche, lineareFunktionen, ersteAbleitungen]
+const lessons: Lesson[] = [
+  brueche,
+  lineareFunktionen,
+  ersteAbleitungen,
+  potenzenWurzeln,
+  termumformungen,
+  quadratischeGleichungen,
+  ungleichungen,
+  quadratischeFunktionen,
+  exponentialfunktionen,
+  logarithmus,
+  trigonometrie,
+  vektoren,
+  skalarprodukt,
+  mengenLogik,
+  notation,
+  deskriptiveStatistik,
+  wahrscheinlichkeit,
+  histogramme,
+]
 
 function validateLesson(lesson: Lesson): string[] {
   const errors: string[] = []
@@ -46,6 +80,10 @@ function validateExercise(ex: Exercise): string[] {
 }
 
 describe('Content Schema Validation', () => {
+  it('18 lessons are registered', () => {
+    expect(lessons).toHaveLength(18)
+  })
+
   lessons.forEach(lesson => {
     it(`Lesson "${lesson.title}" (${lesson.id}) passes schema`, () => {
       const errors = validateLesson(lesson)
@@ -82,6 +120,31 @@ describe('Content Schema Validation', () => {
           expect(ex.options!.some(o => o === ex.answer)).toBe(true)
         }
       }
+    }
+  })
+
+  it('all lessons have at least one ML-related connection', () => {
+    const mlTerms = ['ml', 'neuronale', 'gradient', 'loss', 'training', 'embedding', 'sigmoid', 'softmax', 'regression']
+    for (const lesson of lessons) {
+      const allBlocks = [
+        ...lesson.blocks.show,
+        ...lesson.blocks.explain,
+        ...lesson.blocks.deepen,
+      ]
+      const hasMLBlock = allBlocks.some(b =>
+        mlTerms.some(t => b.content.toLowerCase().includes(t))
+      )
+      const hasMLExercise = lesson.blocks.practice.some(ex =>
+        ex.prompt.toLowerCase().includes('ml') ||
+        (ex.conceptTags ?? []).some(t => ['ml', 'cross-entropy', 'sigmoid', 'norm', 'attention'].includes(t))
+      )
+      expect(hasMLBlock || hasMLExercise, `${lesson.id} has no ML connection`).toBe(true)
+    }
+  })
+
+  it('all lessons have exactly 3 review cards', () => {
+    for (const lesson of lessons) {
+      expect(lesson.reviewCards.length, `${lesson.id} reviewCards`).toBeGreaterThanOrEqual(3)
     }
   })
 })
