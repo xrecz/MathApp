@@ -203,4 +203,171 @@ export const partielleAbleitungenGradient: Lesson = {
       conceptTags: ['gradient-descent'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst partielle Ableitungen berechnen, den Gradient-Vektor aufstellen und geometrisch interpretieren, und einen vollständigen Gradient-Descent-Loop in PyTorch implementieren.',
+
+  description:
+    'Partielle Ableitungen verallgemeinern die Ableitung auf Funktionen mehrerer Variablen: man leitet nach einer Variable ab und hält alle anderen fest. Der Gradient sammelt alle partiellen Ableitungen in einem Vektor — er zeigt in Richtung stärkster Zunahme. In ML: der Gradient des Loss bezüglich aller Parameter ist das Herzstück von Backpropagation und Gradient Descent.',
+
+  conceptSteps: [
+    {
+      title: 'Partielle Ableitung: eine Variable, andere einfrieren',
+      body: 'Die partielle Ableitung $\\frac{\\partial f}{\\partial x_i}(x)$ ist die Ableitung von $f$ nach $x_i$, wobei alle anderen Variablen konstant gehalten werden. Rezept: behandle alle anderen Variablen als Konstanten und leite nach $x_i$ ab — genau wie im 1D-Fall. Notation: $\\partial$ statt $d$ (Curly-d), um zu signalisieren "partiell".',
+      preprompt: 'Wie unterscheidet sich die partielle Ableitung von der gewöhnlichen Ableitung?',
+      miniExample:
+        '$f(x, y) = x^2 y + 3xy^2$. $\\frac{\\partial f}{\\partial x} = 2xy + 3y^2$ (behandle $y$ als Konstante). $\\frac{\\partial f}{\\partial y} = x^2 + 6xy$ (behandle $x$ als Konstante).',
+      selfCheck: 'Berechne $\\frac{\\partial}{{\\partial w_2}}[(w_1 x_1 + w_2 x_2 - y)^2]$.',
+    },
+    {
+      title: 'Gradient: alle partiellen Ableitungen als Vektor',
+      body: 'Der Gradient $\\nabla f(x) = \\left(\\frac{\\partial f}{\\partial x_1}, \\frac{\\partial f}{\\partial x_2}, \\ldots, \\frac{\\partial f}{\\partial x_n}\\right)$ ist der Vektor aller partiellen Ableitungen. Er zeigt in die Richtung stärkster Zunahme von $f$ im Punkt $x$. Der Betrag $\\|\\nabla f(x)\\|$ gibt an, wie steil der Anstieg ist. In ML: $\\nabla_w L$ ist der Gradient des Loss bezüglich aller Parameter — das ist, was Backprop berechnet.',
+      preprompt: 'Wie hängen partielle Ableitungen und der Gradient zusammen?',
+      miniExample:
+        '$L(w_1, w_2) = (w_1-2)^2 + (w_2-3)^2$. $\\nabla L = (2(w_1-2), 2(w_2-3))$. Bei $(w_1, w_2) = (3, 4)$: $\\nabla L = (2, 2)$ — zeigt weg vom Minimum $(2, 3)$, Betrag $\\|\\nabla L\\| = 2\\sqrt{2} \\approx 2{,}83$.',
+      selfCheck: 'Warum zeigt der Gradient immer in Richtung stärkster Zunahme, nicht Abnahme?',
+    },
+    {
+      title: 'Gradient Descent: immer entgegen dem Gradient bergab',
+      body: 'Update-Regel: $w \\leftarrow w - \\eta \\nabla L(w)$. Das $\\eta > 0$ (Lernrate) bestimmt die Schrittgröße. Intuition: $\\nabla L$ zeigt bergauf; $-\\nabla L$ zeigt bergab. Der Schritt $-\\eta \\nabla L$ ist ein kleiner Schritt bergab. Konvergenz: für konvexe $L$ und hinreichend kleines $\\eta$ konvergiert GD gegen das globale Minimum. Für neuronale Netze: lokale Minima oder Sattelpunkte.',
+      preprompt: 'Was passiert, wenn die Lernrate zu groß oder zu klein ist?',
+      miniExample:
+        'MSE-Loss lineare Regression: $L(w) = \\frac{1}{n}\\|Xw - y\\|^2$. $\\nabla_w L = \\frac{2}{n} X^T(Xw - y)$. Update: $w \\leftarrow w - \\eta \\cdot \\frac{2}{n} X^T(Xw - y)$. Das ist Gradient Descent für lineare Regression — analytische Lösung ist $w^* = (X^TX)^{-1}X^Ty$.',
+      selfCheck: 'Was bedeutet $\\nabla L(w^*) = 0$ für den Trainingsfortschritt?',
+    },
+    {
+      title: 'Richtungsableitung: Ableitung in beliebiger Richtung',
+      body: 'Die Richtungsableitung $D_v f(x) = \\nabla f(x) \\cdot v$ (für einen Einheitsvektor $v$) gibt an, wie stark $f$ sich ändert, wenn man sich in Richtung $v$ bewegt. Maximiert über alle $v$: $\\max_{\\|v\\|=1} D_v f = \\|\\nabla f\\|$, erreicht für $v = \\nabla f / \\|\\nabla f\\|$. Das beweist: der Gradient zeigt in Richtung stärkster Zunahme.',
+      preprompt: 'Was bedeutet die Richtungsableitung geometrisch?',
+      miniExample:
+        '$f(x, y) = x^2 + y^2$, Punkt $(1, 1)$. $\\nabla f = (2, 2)$. In Richtung $v = (1,0)$: $D_v f = 2$. In Richtung $v = (0,1)$: $D_v f = 2$. In Richtung $v = (1,1)/\\sqrt{2}$: $D_v f = (2,2) \\cdot (1,1)/\\sqrt{2} = 4/\\sqrt{2} = 2\\sqrt{2} \\approx 2{,}83$ — maximal.',
+      selfCheck: 'In welche Richtung sinkt $f$ am steilsten?',
+    },
+    {
+      title: 'Gradient in der Praxis: PyTorch Autograd',
+      body: 'In PyTorch berechnet `loss.backward()` den Gradienten $\\nabla_w L$ für alle Parameter mit `requires_grad=True`. Die Gradienten werden in `param.grad` gespeichert. Der Standard-GD-Update: `param.data -= lr * param.grad`. In der Praxis: Optimizer-Klassen (`torch.optim.SGD`, `Adam`) übernehmen das Update. `optimizer.step()` = ein GD-Schritt. `optimizer.zero_grad()` = Gradienten zurücksetzen (Akkumulierung verhindern).',
+      preprompt: 'Warum muss man Gradienten vor jedem `backward()`-Aufruf zurücksetzen?',
+      miniExample:
+        '```python\nfor batch_x, batch_y in dataloader:\n    optimizer.zero_grad()   # Gradienten nullen\n    pred = model(batch_x)   # Forward Pass\n    loss = criterion(pred, batch_y)  # Loss berechnen\n    loss.backward()         # Gradienten berechnen\n    optimizer.step()        # GD-Update\n```',
+      selfCheck: 'Was passiert, wenn man `optimizer.zero_grad()` vergisst?',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'Partielle Ableitungen, Gradient und vollständiger GD-Training-Loop in PyTorch',
+      lang: 'python',
+      code: `import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# === Partielle Ableitungen via Autograd ===
+# f(x, y) = x^2 * y + 3*x*y^2
+x = torch.tensor(2.0, requires_grad=True)
+y = torch.tensor(1.0, requires_grad=True)
+f = x**2 * y + 3 * x * y**2
+f.backward()
+# ∂f/∂x = 2xy + 3y^2, bei (2,1): 2*2*1 + 3*1 = 7
+# ∂f/∂y = x^2 + 6xy, bei (2,1): 4 + 12 = 16
+print(f"∂f/∂x = {x.grad.item()} (analytisch: 7)")
+print(f"∂f/∂y = {y.grad.item()} (analytisch: 16)")
+
+# === Gradient-Vektor: Loss lineare Regression ===
+# L(w) = (1/n) * ||Xw - y||^2, Gradient: (2/n) * X^T(Xw - y)
+torch.manual_seed(42)
+n, d = 50, 3
+X = torch.randn(n, d)    # (50, 3) Datenpunkte
+w_true = torch.tensor([1.0, -2.0, 0.5])
+y_data = X @ w_true + 0.1 * torch.randn(n)  # Zieldaten
+
+w = torch.zeros(d, requires_grad=True)  # Startgewichte
+
+# Manueller Gradient
+with torch.no_grad():
+    pred = X @ w
+    grad_manual = 2/n * X.T @ (pred - y_data)
+    print(f"\\nGradient ∇L (manuell): {grad_manual.numpy().round(4)}")
+
+# Autograd-Gradient
+loss = ((X @ w - y_data)**2).mean()
+loss.backward()
+print(f"Gradient ∇L (autograd): {w.grad.numpy().round(4)}")  # Identisch!
+
+# === Vollständiger GD-Training-Loop ===
+print("\\nGradient Descent Training (lineare Regression):")
+w = nn.Parameter(torch.zeros(d))  # Trainierbare Parameter
+optimizer = optim.SGD([w], lr=0.1)
+
+for epoch in range(50):
+    optimizer.zero_grad()           # Gradienten zurücksetzen
+    pred = X @ w                    # Forward Pass
+    loss = ((pred - y_data)**2).mean()  # MSE-Loss
+    loss.backward()                 # Backward Pass: ∇_w L
+    optimizer.step()                # GD-Update: w -= η * ∇L
+
+    if epoch % 10 == 0:
+        print(f"  Epoch {epoch:2d}: Loss={loss.item():.4f}, w={w.data.numpy().round(3)}")
+
+print(f"\\nZielgewichte:  {w_true.numpy()}")
+print(f"Gelernte:      {w.data.numpy().round(3)}")`,
+      annotation:
+        'Der manuelle und Autograd-Gradient sind identisch — Autograd implementiert exakt die analytische partielle Ableitung. Der Training-Loop zeigt das Standard-Muster: `zero_grad → forward → backward → step`. Mit `optim.SGD` berechnet `.step()` das Update $w \\leftarrow w - \\eta \\nabla L$.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Gradient des MSE-Loss für lineare Regression: $\\nabla_w L = \\frac{2}{n}X^T(Xw - y)$',
+      reasoning:
+        '$L(w) = \\frac{1}{n}\\|Xw - y\\|^2 = \\frac{1}{n}(Xw-y)^T(Xw-y)$. Expandieren: $= \\frac{1}{n}(w^TX^TXw - 2y^TXw + y^Ty)$. Gradient: $\\nabla_w L = \\frac{2}{n}(X^TXw - X^Ty) = \\frac{2}{n}X^T(Xw - y)$. Bei $\\nabla_w L = 0$: Normalengleichung $X^TXw = X^Ty$ → analytische Lösung $w^* = (X^TX)^{-1}X^Ty$. GD approximiert diese Lösung iterativ.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Partielle Ableitung nach $x$ berücksichtigt auch Terme, die nur $y$ enthalten.',
+      correct: 'Bei der partiellen Ableitung nach $x$ werden alle anderen Variablen als Konstanten behandelt — Terme nur in $y$ haben Ableitung $0$ nach $x$.',
+      explanation:
+        'Beispiel: $\\frac{\\partial}{{\\partial x}}(x^2 + y^2) = 2x$ — der Term $y^2$ fällt weg, weil $y$ als Konstante gilt.',
+    },
+    {
+      wrong: '`optimizer.zero_grad()` muss nicht aufgerufen werden.',
+      correct: 'PyTorch akkumuliert Gradienten standardmäßig. Immer `zero_grad()` vor `backward()` aufrufen, sonst addieren sich Gradienten über Schritte.',
+      explanation:
+        'Das ist eine Designentscheidung für Spezialanwendungen wie RNNs (wo Akkumulierung gewünscht ist). Im Standard-Training ist es ein Bug.',
+    },
+    {
+      wrong: 'Der Gradient $\\nabla L$ zeigt in Richtung Minimum.',
+      correct: 'Der Gradient zeigt in Richtung stärkster Zunahme. GD geht entgegen dem Gradienten: $w \\leftarrow w - \\eta \\nabla L$ (Minus!)',
+      explanation:
+        'Merkhilfe: wenn du bergab willst, gehst du in die Richtung, die am steilsten abfällt — das ist $-\\nabla L$, nicht $+\\nabla L$.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'Khan Academy: Partial Derivatives',
+      type: 'exercise',
+      note: 'Interaktive Einführung in partielle Ableitungen mit Visualisierungen und schrittweisen Übungsaufgaben.',
+    },
+    {
+      title: 'PyTorch: Autograd Tutorial (official)',
+      type: 'article',
+      note: 'Offizielles Tutorial zu automatischem Differenzieren, Grad-Tape und vollständigem Training-Loop.',
+    },
+    {
+      title: 'Sebastian Ruder: "An overview of gradient descent optimization algorithms"',
+      type: 'article',
+      note: 'Umfassender Überblick über GD-Varianten (SGD, Momentum, Adam, RMSprop) mit Intuition und Vergleich.',
+    },
+  ],
+
+  crossLinks: [
+    { lessonId: 'p1.multivariable-funktionen', relation: 'requires', hint: 'Partielle Ableitungen definieren sich auf multivariablen Funktionen.' },
+    { lessonId: 'p1.multivariate-kettenregel-backprop', relation: 'extends', hint: 'Backpropagation verallgemeinert den Gradienten auf geschachtelte Funktionen.' },
+    { lessonId: 'p1.jacobi-hesse', relation: 'extends', hint: 'Jacobi-Matrix ist der Gradient für vektorwertige Funktionen; Hesse ist der Gradient des Gradienten.' },
+    { lessonId: 'p1.extrema-taylor', relation: 'see-also', hint: 'Stationäre Punkte $\\nabla L = 0$ sind Kandidaten für Minima im Mehrdimensionalen.' },
+  ],
+
+  reflection: 'Der Gradient-Descent-Update $w \\leftarrow w - \\eta \\nabla L$ behandelt alle Parameter gleich (selbe Lernrate). Was ist die Schwäche davon? Und wie verbessert Adam das, indem er unterschiedliche effektive Lernraten pro Parameter verwendet?',
 }
