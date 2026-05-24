@@ -161,8 +161,83 @@ export const potenzenWurzeln: Lesson = {
     },
   ],
 
+  learningOutcome:
+    'Du kannst Potenzgesetze sicher anwenden, negative und gebrochene Exponenten interpretieren und die L2-Norm für ML-Vektoren berechnen.',
+
   description:
     'Du lernst die fünf Potenzgesetze sowie negative und gebrochene Exponenten kennen — und vor allem *warum* sie gelten. Das ist das Fundament für L2-Norm, Weight Decay und MSE-Loss in jedem ML-Modell.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist eine Potenz?',
+      preprompt: 'Stell dir vor, du verdoppelst etwas immer wieder. $2 → 4 → 8 → 16$. Welches Muster siehst du?',
+      body: 'Eine **Potenz** $a^n$ bedeutet: $a$ wird $n$-mal mit sich selbst multipliziert.\n\n$$a^n = \\underbrace{a \\cdot a \\cdot \\ldots \\cdot a}_{n \\text{ mal}}$$\n\n$a$ heißt **Basis**, $n$ heißt **Exponent**.',
+      visual: `<svg viewBox="0 0 240 80" width="240" height="80" aria-label="Potenzen von 2">
+        <rect x="0" y="0" width="240" height="80" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <text x="20" y="24" fill="rgb(156 163 175)" font-size="11" font-family="monospace">2¹ = 2</text>
+        <text x="20" y="42" fill="rgb(134 239 172)" font-size="11" font-family="monospace">2² = 4</text>
+        <text x="20" y="60" fill="rgb(96 165 250)" font-size="11" font-family="monospace">2³ = 8</text>
+        <text x="130" y="24" fill="rgb(251 191 36)" font-size="11" font-family="monospace">2⁴ = 16</text>
+        <text x="130" y="42" fill="rgb(251 191 36)" font-size="11" font-family="monospace">2⁵ = 32</text>
+        <text x="130" y="60" fill="rgb(251 191 36)" font-size="11" font-family="monospace">2¹⁰ = 1024</text>
+      </svg>`,
+      miniExample: '**Beispiel**: $3^4 = 3 \\cdot 3 \\cdot 3 \\cdot 3 = 81$',
+    },
+    {
+      title: 'Warum gilt $a^0 = 1$?',
+      preprompt: 'Was passiert, wenn man $2^3, 2^2, 2^1$ beobachtet — jedes Mal durch $2$ geteilt. Was kommt als nächstes?',
+      body: 'Schau auf das **absteigende Muster** (jeweils $\\div a$):\n\n$$a^3 \\to a^2 \\to a^1 \\to a^0$$\n\n$$27 \\to 9 \\to 3 \\to \\,?$$\n\nDer nächste Schritt: $3 \\div 3 = 1$. Algebraisch:\n\n$$\\frac{a^n}{a^n} = 1 \\quad \\text{und} \\quad \\frac{a^n}{a^n} = a^{n-n} = a^0 \\quad \\Rightarrow \\quad a^0 = 1$$',
+      miniExample: '$5^0 = 1$, $\\pi^0 = 1$, $(-7)^0 = 1$ — immer, solange Basis $\\neq 0$.',
+      selfCheck: 'Warum funktioniert $0^0$ nicht? (Das Muster $0 \\div 0$ ist nicht definiert — $0^0$ ist ein Sonderfall.)',
+    },
+    {
+      title: 'Negative Exponenten: der Kehrwert',
+      body: 'Das Abstiegs-Muster geht weiter unter null:\n\n$$a^1 \\to a^0 \\to a^{-1} \\to a^{-2}$$\n$$3 \\to 1 \\to \\tfrac{1}{3} \\to \\tfrac{1}{9}$$\n\nAllgemein: $a^{-n} = \\dfrac{1}{a^n}$\n\nNegative Exponenten kehren um — der Zähler wird zum Nenner.',
+      miniExample: '$2^{-3} = \\dfrac{1}{2^3} = \\dfrac{1}{8} = 0{,}125$',
+      selfCheck: 'Warum macht $a^{-n}$ für $a = 0$ keinen Sinn?',
+    },
+    {
+      title: 'Gebrochene Exponenten sind Wurzeln',
+      body: 'Was bedeutet $a^{1/2}$? Wende das **Potenz-von-Potenz-Gesetz** an:\n\n$$(a^{1/2})^2 = a^{\\frac{1}{2} \\cdot 2} = a^1 = a$$\n\nDie Zahl, die quadriert $a$ ergibt, ist die Wurzel:\n\n$$a^{1/2} = \\sqrt{a} \\qquad a^{1/n} = \\sqrt[n]{a}$$\n\nAllgemein: $a^{m/n} = \\sqrt[n]{a^m}$',
+      miniExample: '$8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$',
+    },
+    {
+      title: 'Die 5 Potenzgesetze im Überblick',
+      body: '$$\\begin{aligned}\na^m \\cdot a^n &= a^{m+n} && \\text{(Basis gleich: addieren)}\\\\\n\\frac{a^m}{a^n} &= a^{m-n} && \\text{(Basis gleich: subtrahieren)}\\\\\n(a^m)^n &= a^{m \\cdot n} && \\text{(Potenz-von-Potenz: multiplizieren)}\\\\\n(ab)^n &= a^n b^n && \\text{(Produkt hoch n)}\\\\\na^{-n} &= \\frac{1}{a^n} && \\text{(negativ = Kehrwert)}\n\\end{aligned}$$',
+      selfCheck: 'Welches Gesetz gilt für $(a^3)^4$? Warum ist es $a^{12}$ und nicht $a^7$?',
+    },
+    {
+      title: 'ML-Anwendung: L2-Norm',
+      body: 'Die **L2-Norm** eines Vektors $x = (x_1, x_2, \\ldots, x_n)$ ist:\n\n$$\\|x\\| = \\sqrt{x_1^2 + x_2^2 + \\cdots + x_n^2} = \\left(\\sum_{i=1}^n x_i^2\\right)^{1/2}$$\n\nDas ist Pythagoras in $n$ Dimensionen — und steckt überall in ML:\n\n- **MSE-Loss**: $\\frac{1}{n}\\|\\hat{y} - y\\|^2$\n- **Weight Decay**: $\\lambda \\|w\\|^2$ bestraft große Gewichte\n- **Embedding-Distanz**: $\\|e_1 - e_2\\|$ misst Ähnlichkeit',
+      miniExample: 'Für $(3, 4)$: $\\|(3,4)\\| = \\sqrt{9 + 16} = \\sqrt{25} = 5$ (klassischer 3-4-5 Satz)',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'PyTorch: L2-Norm & Weight Decay',
+      lang: 'python',
+      code: `import torch
+
+# L2-Norm eines Vektors — entspricht ||x|| = sqrt(sum(x_i^2))
+x = torch.tensor([3.0, 4.0])
+norm = torch.norm(x)          # = 5.0   (Pythagoras in 2D)
+norm_manual = (x ** 2).sum() ** 0.5  # selbe Berechnung: a^(1/2)
+
+# Weight Decay in SGD — straft große Gewichte: lambda * ||w||^2
+optimizer = torch.optim.SGD(
+    model.parameters(),
+    lr=0.01,
+    weight_decay=1e-4    # lambda = 0.0001; addiert grad += 2*lambda*w
+)
+
+# MSE Loss = (1/n) * ||y_hat - y||^2
+y_hat = torch.tensor([2.5, 0.5, 2.0])
+y     = torch.tensor([3.0, 0.0, 2.0])
+mse   = ((y_hat - y) ** 2).mean()  # = 1/3 * (0.25 + 0.25 + 0) ≈ 0.167`,
+      annotation: '`torch.norm(x)` berechnet $\\|x\\|_2$ (Standard). `x ** 2` wendet $a^n$ elementweise an — genau das Potenzgesetz $(ab)^n = a^n b^n$ bei gleicher Basis. `weight_decay` fügt $\\lambda \\cdot 2w$ zum Gradienten hinzu, was $\\frac{d}{dw}(\\lambda\\|w\\|^2) = 2\\lambda w$ entspricht.',
+    },
+  ],
 
   derivations: [
     {
@@ -215,4 +290,24 @@ export const potenzenWurzeln: Lesson = {
       note: 'Deutsche Referenz mit allen Regeln und Übungsaufgaben',
     },
   ],
+
+  crossLinks: [
+    {
+      lessonId: 'p0.logarithmus',
+      relation: 'extends',
+      hint: 'Logarithmus ist die Umkehrfunktion der Potenz — $a^x = y \\Leftrightarrow \\log_a y = x$.',
+    },
+    {
+      lessonId: 'p0.vektoren',
+      relation: 'extends',
+      hint: 'Die L2-Norm $\\|x\\| = \\sqrt{\\sum x_i^2}$ verbindet Potenzen direkt mit Vektoren.',
+    },
+    {
+      lessonId: 'p1.eigenwerte-eigenvektoren',
+      relation: 'see-also',
+      hint: 'Eigenwerte als Streckungsfaktoren: $Av = \\lambda v$ — $\\lambda$ verhält sich wie eine Potenz-Skalierung.',
+    },
+  ],
+
+  reflection: 'Du hast gelernt: **Potenzgesetze** sind keine Regeln zum Auswendiglernen, sondern Konsequenzen aus dem Abstiegs-Muster. Die L2-Norm $\\|x\\| = (\\sum x_i^2)^{1/2}$ ist ein Bruch-Exponent — steckt in jedem Training-Loop. Welches Potenzgesetz hat dich am meisten überrascht?',
 }

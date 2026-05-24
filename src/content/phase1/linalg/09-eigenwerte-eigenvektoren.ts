@@ -188,8 +188,115 @@ export const eigenwerteEigenvektoren: Lesson = {
     },
   ],
 
+  learningOutcome:
+    'Du kannst Eigenwerte via charakteristischem Polynom berechnen, Eigenvektoren bestimmen und erklären, warum PCA genau die Eigenvektoren der Kovarianzmatrix nutzt.',
+
   description:
     'Eigenvektoren sind die "unveränderlichen Richtungen" einer linearen Abbildung — sie werden nur gestreckt oder gestaucht, nie gekippt. Das ist das Fundament für PCA, spektrales Clustering und die Konvergenzanalyse von Gradient Descent.',
+
+  conceptSteps: [
+    {
+      title: 'Die unveränderliche Richtung',
+      preprompt: 'Stell dir eine Abbildung vor, die alle Vektoren verändert. Gibt es Richtungen, die dabei erhalten bleiben?',
+      body: 'Die meisten Vektoren werden durch eine Matrix **verdreht**. Aber einige besondere Richtungen werden nur **gestreckt oder gestaucht** — ihre Richtung bleibt erhalten.\n\nDas sind die **Eigenvektoren** $v$ zum **Eigenwert** $\\lambda$:\n\n$$Av = \\lambda v$$\n\nLinks: Matrix-Multiplikation (kann Richtung ändern). Rechts: reine Skalierung (Richtung bleibt).',
+      visual: `<svg viewBox="0 0 260 100" width="260" height="100" aria-label="Eigenvektor bleibt auf Geraden">
+        <rect x="0" y="0" width="260" height="100" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <line x1="130" y1="10" x2="130" y2="90" stroke="rgb(99 102 241)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="10" y1="50" x2="250" y2="50" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <line x1="90" y1="80" x2="155" y2="20" stroke="rgb(74 222 128)" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgb(96 165 250)"/>
+          </marker>
+          <marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgb(251 191 36)"/>
+          </marker>
+        </defs>
+        <line x1="130" y1="50" x2="155" y2="25" marker-end="url(#arr)" stroke="rgb(96 165 250)" stroke-width="2"/>
+        <line x1="130" y1="50" x2="172" y2="10" marker-end="url(#arr2)" stroke="rgb(251 191 36)" stroke-width="2"/>
+        <text x="158" y="22" fill="rgb(96 165 250)" font-size="10">v</text>
+        <text x="175" y="14" fill="rgb(251 191 36)" font-size="10">Av=λv</text>
+        <text x="10" y="15" fill="rgb(156 163 175)" font-size="9">Eigenvektor bleibt auf derselben Geraden (nur länger)</text>
+      </svg>`,
+      miniExample: 'Für $A = \\begin{pmatrix}2&0\\\\0&3\\end{pmatrix}$: $A \\cdot \\begin{pmatrix}1\\\\0\\end{pmatrix} = 2 \\cdot \\begin{pmatrix}1\\\\0\\end{pmatrix}$ — Eigenvektor $(1,0)^T$, Eigenwert $\\lambda = 2$.',
+    },
+    {
+      title: 'Das charakteristische Polynom',
+      body: 'Wir suchen $v \\neq \\vec{0}$ mit $(A - \\lambda I)v = 0$.\n\nDas ist ein homogenes LGS. Es hat nichttriviale Lösungen **genau dann**, wenn die Matrix $(A - \\lambda I)$ singulär ist:\n\n$$\\det(A - \\lambda I) = 0$$\n\nDas **charakteristische Polynom** liefert alle Eigenwerte — die Nullstellen.',
+      miniExample: 'Für $A = \\begin{pmatrix}3&1\\\\0&2\\end{pmatrix}$:\n\n$\\det\\begin{pmatrix}3-\\lambda & 1 \\\\ 0 & 2-\\lambda\\end{pmatrix} = (3-\\lambda)(2-\\lambda) = 0$\n\n$\\Rightarrow \\lambda_1 = 3, \\lambda_2 = 2$',
+    },
+    {
+      title: 'Eigenvektoren berechnen',
+      body: 'Für jeden Eigenwert $\\lambda_i$: löse $(A - \\lambda_i I)v = 0$ (Gauß-Elimination).\n\nDas Ergebnis ist ein Unterraum — der **Eigenraum** von $\\lambda_i$:\n\n$$E_{\\lambda_i} = \\ker(A - \\lambda_i I)$$\n\nJede Richtung in diesem Raum ist ein Eigenvektor.',
+      miniExample: 'Für $\\lambda_1 = 3$ aus obigem Beispiel:\n\n$(A - 3I)v = \\begin{pmatrix}0&1\\\\0&-1\\end{pmatrix}v = 0 \\Rightarrow v_1 = \\begin{pmatrix}1\\\\0\\end{pmatrix}$',
+    },
+    {
+      title: 'Spur, Determinante und Eigenwerte',
+      body: 'Zwei elegante Beziehungen, die oft schneller als der Weg über das Polynom sind:\n\n$$\\text{Spur}(A) = \\sum_i \\lambda_i \\qquad \\det(A) = \\prod_i \\lambda_i$$\n\nFür $2 \\times 2$: Eigenwerte $\\lambda$ erfüllen $\\lambda^2 - \\text{Spur}(A)\\lambda + \\det(A) = 0$.\n\nDas erlaubt einen **Schnell-Trick**: $\\lambda = \\frac{m \\pm \\sqrt{m^2 - p}}{1}$ mit $m = \\frac{\\text{Spur}}{2}$, $p = \\det A$.',
+      miniExample: 'Für $\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}$: Spur $= 7$, Det $= 10$. Also $\\lambda^2 - 7\\lambda + 10 = 0 \\Rightarrow \\lambda = 5, 2$.',
+      selfCheck: 'Warum ist $\\det A = 0$ genau dann, wenn $0$ ein Eigenwert von $A$ ist?',
+    },
+    {
+      title: 'PCA: Warum Eigenvektoren?',
+      body: 'PCA sucht die Richtung $w$ (mit $\\|w\\| = 1$), die die **projizierte Varianz** $w^\\top \\Sigma w$ maximiert.\n\nLagrange-Methode mit Nebenbedingung $\\|w\\|^2 = 1$:\n\n$$\\nabla(w^\\top \\Sigma w - \\lambda(w^\\top w - 1)) = 0 \\quad \\Rightarrow \\quad \\Sigma w = \\lambda w$$\n\nDas ist die **Eigenvektor-Gleichung**! Der Lagrange-Multiplikator ist der Eigenwert — und $w^\\top \\Sigma w = \\lambda$. Die erste Hauptkomponente ist der EV zum **größten** Eigenwert.',
+      visual: `<svg viewBox="0 0 260 100" width="260" height="100" aria-label="PCA Hauptkomponente">
+        <rect x="0" y="0" width="260" height="100" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <ellipse cx="130" cy="50" rx="90" ry="35" fill="none" stroke="rgb(99 102 241)" stroke-width="1" opacity="0.5"/>
+        <ellipse cx="130" cy="50" rx="60" ry="20" fill="none" stroke="rgb(99 102 241)" stroke-width="0.5" opacity="0.3"/>
+        <defs>
+          <marker id="pc1" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgb(74 222 128)"/>
+          </marker>
+          <marker id="pc2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgb(248 113 113)"/>
+          </marker>
+        </defs>
+        <line x1="40" y1="50" x2="220" y2="50" marker-end="url(#pc1)" stroke="rgb(74 222 128)" stroke-width="2.5"/>
+        <line x1="130" y1="15" x2="130" y2="85" marker-end="url(#pc2)" stroke="rgb(248 113 113)" stroke-width="1.5"/>
+        <text x="195" y="44" fill="rgb(74 222 128)" font-size="10">PC1 (max. Varianz)</text>
+        <text x="134" y="30" fill="rgb(248 113 113)" font-size="10">PC2</text>
+      </svg>`,
+    },
+    {
+      title: 'Gradient Descent und Eigenwerte',
+      body: 'Die Update-Regel $\\theta_{t+1} = (I - \\eta H)\\theta_t$ konvergiert, wenn alle Eigenwerte von $(I - \\eta H)$ betragsmäßig $< 1$ sind:\n\n$$|1 - \\eta \\lambda_i| < 1 \\quad \\forall i$$\n\nDie härteste Bedingung kommt vom größten Eigenwert $\\lambda_{\\max}$:\n\n$$\\eta < \\frac{2}{\\lambda_{\\max}(H)}$$\n\nDeshalb braucht Adam/AdaGrad weniger Tuning: sie passen $\\eta$ pro Parameter an seine lokale Krümmung an.',
+      selfCheck: 'Was passiert geometrisch, wenn $\\eta > 2/\\lambda_{\\max}$? (Der Lernschritt "überspringt" das Minimum — der Algorithmus divergiert.)',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'NumPy: Eigenwerte berechnen + PCA',
+      lang: 'python',
+      code: `import numpy as np
+from sklearn.decomposition import PCA
+
+# --- 1. Eigenwerte direkt ---
+A = np.array([[3, 1],
+              [0, 2]], dtype=float)
+
+eigenvalues, eigenvectors = np.linalg.eig(A)
+# eigenvalues  = [3., 2.]
+# eigenvectors = Spalten sind die EVs: [[1., -1.], [0., 1.]]
+
+# Verifikation: A @ v == lambda * v
+v0 = eigenvectors[:, 0]  # EV zu lambda=3
+print(np.allclose(A @ v0, eigenvalues[0] * v0))  # True
+
+# --- 2. PCA = Eigenvektoren der Kovarianzmatrix ---
+X = np.random.randn(100, 5)   # 100 Datenpunkte, 5 Features
+X -= X.mean(axis=0)            # Zentrierung (wichtig!)
+
+Sigma = (X.T @ X) / (len(X) - 1)  # Kovarianzmatrix (5x5)
+vals, vecs = np.linalg.eigh(Sigma) # eigh: symmetrisch → reelle EW
+
+# PCA via sklearn (dasselbe, aber effizient für große Daten)
+pca = PCA(n_components=2)
+X_reduced = pca.fit_transform(X)  # Projektion auf 2 Hauptkomponenten
+print(pca.explained_variance_ratio_)  # [0.23, 0.19] — Anteil Varianz`,
+      annotation: '`np.linalg.eig` gibt Eigenwerte und -vektoren zurück. Für **symmetrische** Matrizen (wie Kovarianzmatrizen) ist `eigh` stabiler und garantiert reelle Werte. `PCA(n_components=k)` wählt intern die $k$ Eigenvektoren zum größten Eigenwert — identisch zum manuellen $\\Sigma w = \\lambda w$-Ansatz, aber numerisch optimiert (SVD statt eig).',
+    },
+  ],
 
   derivations: [
     {
@@ -242,4 +349,29 @@ export const eigenwerteEigenvektoren: Lesson = {
       note: 'Kurzer Trick via Spur + Determinante für 2×2-Matrizen — nützlich für Hessian-Analyse',
     },
   ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.determinante',
+      relation: 'requires',
+      hint: 'Das charakteristische Polynom $\\det(A - \\lambda I) = 0$ setzt Kenntnisse der Determinante voraus.',
+    },
+    {
+      lessonId: 'p1.spektraltheorem',
+      relation: 'extends',
+      hint: 'Der Spektralsatz sichert für **symmetrische** Matrizen orthogonale Eigenvektoren — das Fundament von PCA.',
+    },
+    {
+      lessonId: 'p1.svd',
+      relation: 'extends',
+      hint: 'SVD verallgemeinert Eigenwerte auf nicht-quadratische Matrizen — Singular Values statt Eigenwerte.',
+    },
+    {
+      lessonId: 'p1.kovarianz-multivariate-gauss',
+      relation: 'see-also',
+      hint: 'Kovarianzmatrizen sind symmetrisch positiv semidefinit — ihre Eigenwerte sind die Varianzen in Hauptrichtungen.',
+    },
+  ],
+
+  reflection: 'Eigenvektoren zeigen die "natürlichen Richtungen" einer Abbildung — Richtungen, die nur gestreckt, nie gedreht werden. Dieselbe Idee steckt in PCA (maximale Varianz-Richtung), SVD (Singulärwerte), und der Konvergenzanalyse von Gradient Descent. **Welcher Zusammenhang hat dich am meisten überrascht — PCA, Gradient Descent, oder das det = 0 Argument?**',
 }
