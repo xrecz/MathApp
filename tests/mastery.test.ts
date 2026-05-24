@@ -58,8 +58,9 @@ describe('Mastery Engine', () => {
   })
 
   describe('xpForCorrect', () => {
-    it('returns more XP for higher difficulty', () => {
-      expect(xpForCorrect(4, false)).toBeGreaterThan(xpForCorrect(2, false))
+    it('returns 10 XP without hint (difficulty-independent)', () => {
+      expect(xpForCorrect(4, false)).toBe(10)
+      expect(xpForCorrect(2, false)).toBe(10)
     })
 
     it('reduces XP when hint used', () => {

@@ -16,15 +16,13 @@ export function computeNextMastery(
   difficulty: Difficulty,
 ): MasteryState {
   const totalAttempts = current.totalAttempts + 1
-  const totalCorrect = current.totalCorrect + (correct ? 1 : 0)
-  let ccr = correct ? current.ccr + 1 : 0
+  const totalCorrect  = current.totalCorrect + (correct ? 1 : 0)
+  let ccr   = correct ? current.ccr + 1 : 0
   let level = current.level
 
   if (!correct) {
-    // Downgrade at most one step
-    if (level === 'mastered') level = 'proficient'
+    if (level === 'mastered')   level = 'proficient'
     else if (level === 'proficient') level = 'familiar'
-    // 'familiar' and 'attempted' don't downgrade further
   } else {
     const accuracy = totalAttempts > 0 ? totalCorrect / totalAttempts : 0
 
@@ -33,10 +31,10 @@ export function computeNextMastery(
     } else if (ccr >= N_CCR) {
       level = 'proficient'
     } else if (accuracy >= 0.7) {
-      if (level === 'attempted' || level === 'not_started' as MasteryLevel) {
+      if (level === 'attempted' || level === ('not_started' as MasteryLevel)) {
         level = 'familiar'
       }
-    } else if (level === 'not_started' as MasteryLevel) {
+    } else if (level === ('not_started' as MasteryLevel)) {
       level = 'attempted'
     }
   }
@@ -64,7 +62,7 @@ export function masteryLabel(level: MasteryLevel): string {
   return map[level]
 }
 
-export function xpForCorrect(difficulty: Difficulty, hintUsed: boolean): number {
-  const base = difficulty * 5
-  return hintUsed ? Math.max(1, base - 3) : base
+// XP based on hint count (see session.ts for full table)
+export function xpForCorrect(_difficulty: Difficulty, hintUsed: boolean): number {
+  return hintUsed ? 7 : 10
 }

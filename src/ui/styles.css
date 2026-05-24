@@ -4,21 +4,28 @@
 
 @layer base {
   :root {
-    --safe-top: env(safe-area-inset-top);
-    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-top:    env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left:   env(safe-area-inset-left,  0px);
+    --safe-right:  env(safe-area-inset-right, 0px);
   }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
 
   body {
     @apply bg-surface-900 text-white antialiased;
     padding-top: var(--safe-top);
-    padding-bottom: var(--safe-bottom);
   }
 
   /* KaTeX display fix */
   .katex-display {
     @apply overflow-x-auto py-2;
+  }
+  .katex-display > .katex {
+    @apply overflow-x-auto;
   }
 }
 
@@ -26,14 +33,14 @@
   .btn-primary {
     @apply bg-brand-600 hover:bg-brand-700 active:bg-brand-900
            text-white font-semibold py-3 px-6 rounded-xl
-           transition-colors duration-150 select-none
+           transition-colors duration-150 select-none cursor-pointer
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-surface-700 hover:bg-surface-600
+    @apply bg-surface-700 hover:bg-surface-600 active:bg-surface-900
            text-white font-medium py-2.5 px-5 rounded-xl
-           transition-colors duration-150 select-none;
+           transition-colors duration-150 select-none cursor-pointer;
   }
 
   .card {
@@ -45,7 +52,7 @@
   }
 
   .top-bar {
-    @apply flex items-center gap-3 py-3 sticky top-0 bg-surface-900 z-10;
+    @apply flex items-center gap-3 py-3 sticky top-0 bg-surface-900/95 backdrop-blur-sm z-10;
   }
 
   .progress-track {
@@ -55,6 +62,14 @@
   .progress-fill {
     @apply h-full bg-brand-500 rounded-full transition-all duration-500;
   }
+
+  /* Bottom nav safe area */
+  .pb-safe {
+    padding-bottom: max(8px, var(--safe-bottom));
+  }
+  .pb-safe-4 {
+    padding-bottom: max(16px, var(--safe-bottom));
+  }
 }
 
 @layer utilities {
@@ -63,15 +78,53 @@
   .fs-L { font-size: 18px; }
 
   .no-tap-highlight { -webkit-tap-highlight-color: transparent; }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
 /* Math keyboard */
-math-keyboard {
-  display: block;
-}
+math-keyboard { display: block; }
 
 .math-key {
   @apply bg-surface-700 hover:bg-surface-600 active:bg-surface-900
          text-white font-mono rounded-lg h-10 text-sm
          transition-colors duration-100 select-none no-tap-highlight;
+}
+
+/* ─── Animations ──────────────────────────────────────────────── */
+
+/* Block-level slide-up fade on screen transitions */
+.block-transition {
+  animation: slideUp 200ms ease-out both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Answer feedback banner spring */
+.feedback-animate {
+  animation: feedbackPop 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes feedbackPop {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* Review card answer reveal */
+.answer-reveal {
+  animation: cardReveal 350ms cubic-bezier(0.34, 1.2, 0.64, 1) both;
+}
+@keyframes cardReveal {
+  from { opacity: 0; transform: scaleY(0.85) translateY(-8px); }
+  to   { opacity: 1; transform: scaleY(1)    translateY(0);    }
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .block-transition,
+  .feedback-animate,
+  .answer-reveal {
+    animation: none;
+  }
 }

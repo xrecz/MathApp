@@ -1,66 +1,69 @@
 import { db } from './db'
 import { store } from '../lib/store'
 import type { AppState } from '../lib/store'
+import { loadGamification } from '../engine/session'
 
-type SettingKey = keyof Pick<AppState, 'theme' | 'fontSize' | 'haptics' | 'dailyGoalXp'>
-const SETTING_KEYS: SettingKey[] = ['theme', 'fontSize', 'haptics', 'dailyGoalXp']
+type ThemeSetting = 'dark' | 'light' | 'system'
+type FontSizeSetting = 'S' | 'M' | 'L'
+
+const THEME_KEY     = 'theme'
+const FONTSIZE_KEY  = 'fontSize'
+const HAPTICS_KEY   = 'haptics'
+const BACKUP_KEY    = 'lastBackupExport'
 
 export async function loadSettings(): Promise<void> {
-  const rows = await db.settings.toArray()
-  for (const row of rows) {
-    const key = row.key as SettingKey
-    if (SETTING_KEYS.includes(key)) {
-      store.set(key, row.value as AppState[SettingKey])
-    }
-  }
-}
-
-export async function saveSetting(key: SettingKey, value: AppState[SettingKey]): Promise<void> {
-  store.set(key, value)
-  await db.settings.put({ key, value })
+  const [themeRow, fontRow, hapticRow] = await Promise.all([
+    db.settings.get(THEME_KEY),
+    db.settings.get(FONTSIZE_KEY),
+    db.settings.get(HAPTICS_KEY),
+  ])
+  if (themeRow)  store.set('theme',   themeRow.value  as ThemeSetting)
+  if (fontRow)   store.set('fontSize', fontRow.value  as FontSizeSetting)
+  if (hapticRow) store.set('haptics', hapticRow.value as boolean)
 }
 
 export async function loadXpAndStreak(): Promise<void> {
-  const xpRow = await db.settings.get('totalXp')
-  const streakRow = await db.settings.get('streak')
-  const todayXpRow = await db.settings.get('todayXp')
-  const todayKeyRow = await db.settings.get('todayKey')
+  await loadGamification()
+}
 
-  if (xpRow) store.set('xp', xpRow.value as number)
-  if (streakRow) store.set('streak', streakRow.value as number)
-
-  const today = new Date().toISOString().slice(0, 10)
-  if (todayKeyRow && todayKeyRow.value === today && todayXpRow) {
-    store.set('todayXp', todayXpRow.value as number)
+export async function saveSetting(
+  key: keyof Pick<AppState, 'theme' | 'fontSize' | 'haptics' | 'dailyGoalXp'>,
+  value: AppState[typeof key],
+): Promise<void> {
+  store.set(key, value)
+  if (key === 'dailyGoalXp') {
+    await db.gamification.put({ key: 'dailyGoalXP', value: value as number })
   } else {
-    store.set('todayXp', 0)
-    await db.settings.put({ key: 'todayXp', value: 0 })
-    await db.settings.put({ key: 'todayKey', value: today })
+    await db.settings.put({ key, value })
   }
 }
 
-export async function addXp(amount: number): Promise<void> {
-  const newTotal = store.get('xp') + amount
-  const newToday = store.get('todayXp') + amount
-  store.set('xp', newTotal)
-  store.set('todayXp', newToday)
-  await db.settings.put({ key: 'totalXp', value: newTotal })
-  await db.settings.put({ key: 'todayXp', value: newToday })
+export async function getSetting(key: string): Promise<string | number | boolean | undefined> {
+  const row = await db.settings.get(key)
+  return row?.value
 }
 
-export async function updateStreak(lessonsCompleted: boolean): Promise<void> {
-  if (!lessonsCompleted) return
-  const today = new Date().toISOString().slice(0, 10)
-  const lastDayRow = await db.settings.get('lastActiveDay')
-  const lastDay = lastDayRow?.value as string | undefined
+export async function setSetting(key: string, value: string | number | boolean): Promise<void> {
+  await db.settings.put({ key, value })
+}
 
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
-  let newStreak = store.get('streak')
+export async function getLastBackupDate(): Promise<number | null> {
+  const row = await db.settings.get(BACKUP_KEY)
+  return row ? (row.value as number) : null
+}
 
-  if (lastDay === today) return
-  newStreak = lastDay === yesterday ? newStreak + 1 : 1
+export async function markBackupExported(): Promise<void> {
+  await db.settings.put({ key: BACKUP_KEY, value: Date.now() })
+}
 
-  store.set('streak', newStreak)
-  await db.settings.put({ key: 'streak', value: newStreak })
-  await db.settings.put({ key: 'lastActiveDay', value: today })
+// Legacy shim
+export async function addXp(amount: number): Promise<void> {
+  const { addXP } = await import('../engine/session')
+  await addXP(amount)
+}
+
+export async function updateStreak(active: boolean): Promise<void> {
+  if (!active) return
+  const { recordActivity } = await import('../engine/session')
+  await recordActivity(0)
 }

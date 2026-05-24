@@ -1,12 +1,19 @@
 import { store } from './store'
 
-export function vibrate(pattern: number | number[] = 10): void {
-  if (!store.get('haptics')) return
-  if ('vibrate' in navigator) {
-    navigator.vibrate(pattern)
-  }
+const enabled = () => store.get('haptics')
+
+export const haptic = {
+  light:   () => { if (enabled()) navigator.vibrate?.(10)           },
+  medium:  () => { if (enabled()) navigator.vibrate?.(20)           },
+  success: () => { if (enabled()) navigator.vibrate?.([10, 30, 10]) },
+  warning: () => { if (enabled()) navigator.vibrate?.([30, 50, 30]) },
+  error:   () => { if (enabled()) navigator.vibrate?.([50, 100, 50]) },
 }
 
-export const hapticSuccess = () => vibrate([10, 50, 10])
-export const hapticError   = () => vibrate([50, 30, 50])
-export const hapticTap     = () => vibrate(10)
+// Legacy shims kept for existing callers
+export const hapticSuccess = haptic.success
+export const hapticError   = haptic.error
+export const hapticTap     = haptic.light
+export function vibrate(pattern: number | number[] = 10): void {
+  if (enabled()) navigator.vibrate?.(pattern)
+}
