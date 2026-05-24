@@ -105,13 +105,34 @@
 
 ---
 
-## Phase E — Gestartet am 2026-05-24
+## Phase E — Abgeschlossen am 2026-05-24
 
 | Sub-Phase | Status | Beschreibung |
 |-----------|--------|--------------|
 | E0 | ✅ | Voraussetzungs-Check, Calculus-Verzeichnis, Topic-Integration |
-| E1 | 🔄 | Grundlagen: Grenzwerte, Ableitung als Konzept |
-| E2 | ⬜ | Regelwerk: Ableitungsregeln, Kettenregel |
-| E3 | ⬜ | ML-Funktionen: Aktivierungsableitungen, Extrema & Taylor |
-| E4 | ⬜ | Multivariate Calculus: Multivariable Funktionen, Partielle Ableitungen |
-| E5 | ⬜ | Backpropagation: Multivariate Kettenregel, Jacobi & Hesse |
+| E1 | ✅ | Grundlagen: Grenzwerte, Ableitung als Konzept |
+| E2 | ✅ | Regelwerk: Ableitungsregeln, Kettenregel |
+| E3 | ✅ | ML-Funktionen: Aktivierungsableitungen, Extrema & Taylor |
+| E4 | ✅ | Multivariate Calculus: Multivariable Funktionen, Partielle Ableitungen |
+| E5 | ✅ | Backpropagation: Multivariate Kettenregel, Jacobi & Hesse |
+
+### Phase-E-Ergebnisse
+
+- **Lektionen**: 40 gesamt (18 Phase-0 + 12 LinAlg + 10 Calculus)
+- **Aufgaben**: 62 neue Übungsaufgaben (5–7 pro Lektion)
+- **Review-Cards**: 30 neu (3 pro Lektion)
+- **Tests**: 113/113 grün
+- **Build**: ✅ sauber, strict mode
+
+---
+
+## Phase F — Gestartet am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| F0 | ✅ | Voraussetzungs-Check, Stochastik-Verzeichnis, STATUS.md |
+| F1 | ⬜ | Zufallsvariablen, PMF/PDF/CDF |
+| F2 | ⬜ | Diskrete & Kontinuierliche Verteilungen |
+| F3 | ⬜ | Erwartungswert & Varianz, Kovarianz & Multivariate Gauß |
+| F4 | ⬜ | Bedingte Wahrscheinlichkeit, Bayes-Theorem |
+| F5 | ⬜ | MLE (= Cross-Entropy), MAP & Regularisierung & Bias-Varianz |
