@@ -17,9 +17,21 @@ import { notation } from '../src/content/phase0/15-notation'
 import { deskriptiveStatistik } from '../src/content/phase0/16-deskriptive-statistik'
 import { wahrscheinlichkeit } from '../src/content/phase0/17-wahrscheinlichkeit'
 import { histogramme } from '../src/content/phase0/18-histogramme'
+import { vektorenFormal } from '../src/content/phase1/linalg/01-vektoren-formal'
+import { normSkalarprodukt } from '../src/content/phase1/linalg/02-norm-skalarprodukt'
+import { matrizenLineareAbbildungen } from '../src/content/phase1/linalg/03-matrizen-lineare-abbildungen'
+import { matrixMultiplikation } from '../src/content/phase1/linalg/04-matrix-multiplikation'
+import { inverseTransponierte } from '../src/content/phase1/linalg/05-inverse-transponierte'
+import { lgsGauss } from '../src/content/phase1/linalg/06-lgs-gauss'
+import { vektorraeumeBasisRang } from '../src/content/phase1/linalg/07-vektorraeume-basis-rang'
+import { determinante } from '../src/content/phase1/linalg/08-determinante'
+import { eigenwerteEigenvektoren } from '../src/content/phase1/linalg/09-eigenwerte-eigenvektoren'
+import { spektraltheorem } from '../src/content/phase1/linalg/10-spektraltheorem'
+import { svd } from '../src/content/phase1/linalg/11-svd'
+import { tensorenMlBruecke } from '../src/content/phase1/linalg/12-tensoren-ml-bruecke'
 import type { Lesson, Exercise } from '../src/types'
 
-const lessons: Lesson[] = [
+const phase0Lessons: Lesson[] = [
   brueche,
   lineareFunktionen,
   ersteAbleitungen,
@@ -39,6 +51,23 @@ const lessons: Lesson[] = [
   wahrscheinlichkeit,
   histogramme,
 ]
+
+const phase1LinalgLessons: Lesson[] = [
+  vektorenFormal,
+  normSkalarprodukt,
+  matrizenLineareAbbildungen,
+  matrixMultiplikation,
+  inverseTransponierte,
+  lgsGauss,
+  vektorraeumeBasisRang,
+  determinante,
+  eigenwerteEigenvektoren,
+  spektraltheorem,
+  svd,
+  tensorenMlBruecke,
+]
+
+const lessons: Lesson[] = [...phase0Lessons, ...phase1LinalgLessons]
 
 function validateLesson(lesson: Lesson): string[] {
   const errors: string[] = []
@@ -80,8 +109,16 @@ function validateExercise(ex: Exercise): string[] {
 }
 
 describe('Content Schema Validation', () => {
-  it('18 lessons are registered', () => {
-    expect(lessons).toHaveLength(18)
+  it('18 phase-0 lessons are registered', () => {
+    expect(phase0Lessons).toHaveLength(18)
+  })
+
+  it('12 phase-1 linalg lessons are registered', () => {
+    expect(phase1LinalgLessons).toHaveLength(12)
+  })
+
+  it('30 total lessons are registered', () => {
+    expect(lessons).toHaveLength(30)
   })
 
   lessons.forEach(lesson => {
