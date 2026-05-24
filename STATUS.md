@@ -81,3 +81,37 @@
   - Batch Normalization, Z-Score (Statistik)
   - Softmax-Output-Verteilung (Wahrscheinlichkeit)
   - Aktivierungs-Histogramme, Loss-Diagnose (Histogramme)
+
+---
+
+## Phase D — Abgeschlossen am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| D1 | ✅ | Lektionen 01–02: Vektoren (formal), Norm & Skalarprodukt |
+| D2 | ✅ | Lektionen 03–05: Matrizen, Matrix-Multiplikation, Inverse & Transponierte |
+| D3 | ✅ | Lektionen 06–08: LGS & Gauß, Vektorräume/Basis/Rang, Determinante |
+| D4 | ✅ | Lektionen 09–10: Eigenwerte & Eigenvektoren, Spektraltheorem |
+| D5 | ✅ | Lektionen 11–12 + Aggregator + Schema-Tests |
+
+### Phase-D-Ergebnisse
+
+- **Lektionen**: 30 gesamt (18 Phase-0 + 12 Phase-1-LinAlg)
+- **Aufgaben**: 75 neue Übungsaufgaben (5–7 pro Lektion, inkl. 7 in SVD)
+- **Review-Cards**: 36 neu (3 pro Lektion)
+- **Tests**: 102/102 grün
+- **Build**: ✅ sauber, strict mode
+- **Bundle**: Initial-Chunk 27.30 KB gzip ✅, Phase-1-LinAlg-Chunk 25.29 KB gzip ✅
+
+---
+
+## Phase E — Gestartet am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| E0 | ✅ | Voraussetzungs-Check, Calculus-Verzeichnis, Topic-Integration |
+| E1 | 🔄 | Grundlagen: Grenzwerte, Ableitung als Konzept |
+| E2 | ⬜ | Regelwerk: Ableitungsregeln, Kettenregel |
+| E3 | ⬜ | ML-Funktionen: Aktivierungsableitungen, Extrema & Taylor |
+| E4 | ⬜ | Multivariate Calculus: Multivariable Funktionen, Partielle Ableitungen |
+| E5 | ⬜ | Backpropagation: Multivariate Kettenregel, Jacobi & Hesse |
