@@ -201,3 +201,23 @@ Nach Deployment auf GitHub Pages:
 - [ ] Home-Bildschirm-Tap → keine 404
 - [ ] Update-Banner liegt über Status-Bar (nicht darunter)
 - [ ] Submit-Button sichtbar und tippbar
+
+---
+
+## Phase UX-Hotfix — Abgeschlossen am 2026-05-24
+
+| Sub-Phase | Status | Beschreibung |
+|-----------|--------|--------------|
+| UX0 | ✅ | Diagnose: 3 Root-Causes in `docs/UX_HOTFIX_DIAGNOSE.md` |
+| UX1 | ✅ | Bottom-Nav im Lesson-Flow ausgeblendet (`data-in-lesson`), `.action-bar` sticky-bottom |
+| UX2 | ✅ | LessonIntro: Hero (Emoji+Titel+Meta+Mastery-Dots) + Voraussetzungen + Tags |
+| UX3 | ✅ | Concept/Practice/Recap Action-Bars frei von Bottom-Nav-Overlap (via UX1) |
+
+### UX-Hotfix-Ergebnisse
+
+- **Tests**: 137/137 grün (unverändert)
+- **Build**: ✅ sauber, strict mode
+- **Root Cause UX1**: `fixed bottom-6` Buttons lagen unter `fixed bottom-0` Bottom-Nav (iPhone: ~90px). Fix: `.action-bar { position: sticky; bottom: 0 }` + `body[data-in-lesson="true"] .bottom-nav { display: none }`
+- **Root Cause UX2**: Practice `sticky bottom-0` hatte kein z-index → Nav (z-30) überlagerte Submit-Button. Fix: via UX1 (Nav im Lesson-Flow unsichtbar)
+- **Root Cause UX3**: `#content` hatte immer `pb-16`. Fix: `body[data-in-lesson="true"] #content { padding-bottom: 0 }`
+- **Änderungen**: `src/app.ts`, `src/ui/styles.css`, `src/ui/screens/LessonScreen.ts`
