@@ -211,4 +211,144 @@ export const vektorenFormal: Lesson = {
       conceptTags: ['linear-independence'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst Vektoren in $\\mathbb{R}^n$ formal definieren, Linearkombinationen berechnen, lineare Unabhängigkeit prüfen und erklären, warum Embedding-Vektoren in hochdimensionalen Räumen dieselbe algebraische Struktur haben.',
+
+  description:
+    'Von der geometrischen Pfeil-Vorstellung zur formalen Definition: Vektoren als geordnete Tupel in $\\mathbb{R}^n$, Vektorraumaxiome, Linearkombinationen, Span und lineare Unabhängigkeit. Das Fundament für alle weiteren Linalg-Konzepte — und direkt relevant für Feature-Vektoren, Gewichtsvektoren und Embeddings in ML.',
+
+  conceptSteps: [
+    {
+      title: 'Vektoren — drei äquivalente Sichtweisen',
+      preprompt: 'Du kennst Vektoren als Pfeile. Was bedeutet ein Pfeil in 512 Dimensionen?',
+      body: 'Ein **Vektor** in $\\mathbb{R}^n$ ist ein geordnetes Tupel reeller Zahlen:\n\n$$\\mathbf{v} = \\begin{pmatrix}v_1 \\\\ v_2 \\\\ \\vdots \\\\ v_n\\end{pmatrix} \\in \\mathbb{R}^n$$\n\nDrei äquivalente Sichtweisen:\n1. **Geometrisch**: Pfeil im Raum (nur für $n \\leq 3$ visualisierbar)\n2. **Algebraisch**: Liste von $n$ Koordinaten\n3. **ML**: Repräsentation eines Datenpunkts oder Tokens\n\nVektorraum-Axiome garantieren, dass Addition und Skalarmultiplikation "vernünftig" funktionieren.',
+      miniExample: '**Feature-Vektor**: Haus mit $x_1 = $ Fläche, $x_2 = $ Zimmer, $x_3 = $ Preis: $\\mathbf{x} = (120, 4, 350000)^T \\in \\mathbb{R}^3$.',
+    },
+    {
+      title: 'Rechenregeln: Addition und Skalarmultiplikation',
+      body: 'Vektoren in $\\mathbb{R}^n$ addiert man **komponentenweise**:\n\n$$\\mathbf{u} + \\mathbf{v} = \\begin{pmatrix}u_1 + v_1 \\\\ \\vdots \\\\ u_n + v_n\\end{pmatrix} \\qquad c \\cdot \\mathbf{v} = \\begin{pmatrix}c \\cdot v_1 \\\\ \\vdots \\\\ c \\cdot v_n\\end{pmatrix}$$\n\nDie **Standardbasis** von $\\mathbb{R}^n$ sind die Einheitsvektoren $e_1, \\dots, e_n$:\n\n$$e_1 = \\begin{pmatrix}1\\\\0\\\\\\vdots\\\\0\\end{pmatrix}, \\quad e_2 = \\begin{pmatrix}0\\\\1\\\\\\vdots\\\\0\\end{pmatrix}, \\quad \\dots$$',
+      selfCheck: 'Warum ist $e_i$ "Standard"? Zeige, dass sich jeder Vektor $\\mathbf{v}$ als $\\sum_i v_i e_i$ schreiben lässt.',
+    },
+    {
+      title: 'Linearkombination und Span',
+      body: 'Eine **Linearkombination** von Vektoren $v_1, \\dots, v_k$ mit Skalaren $c_1, \\dots, c_k$:\n\n$$c_1 \\mathbf{v}_1 + c_2 \\mathbf{v}_2 + \\dots + c_k \\mathbf{v}_k$$\n\nDer **Span** ist die Menge **aller** möglichen Linearkombinationen:\n\n$$\\text{span}\\{v_1, \\dots, v_k\\} = \\{c_1 v_1 + \\dots + c_k v_k : c_i \\in \\mathbb{R}\\}$$\n\nFür zwei nicht-parallele Vektoren in $\\mathbb{R}^2$: Span = ganz $\\mathbb{R}^2$ (jeder Punkt erreichbar).',
+      miniExample: 'Word2Vec: $\\vec{\\text{König}} - \\vec{\\text{Mann}} + \\vec{\\text{Frau}} \\approx \\vec{\\text{Königin}}$ — semantische Analogie als Linearkombination.',
+    },
+    {
+      title: 'Lineare Unabhängigkeit',
+      body: 'Die Vektoren $v_1, \\dots, v_k$ sind **linear unabhängig**, wenn die einzige Lösung von\n\n$$c_1 v_1 + c_2 v_2 + \\dots + c_k v_k = \\vec{0}$$\n\ndie triviale ist: $c_1 = c_2 = \\dots = c_k = 0$.\n\n**Intuition**: Kein Vektor ist eine Linearkombination der anderen — jeder "bringt neue Information".\n\n**Gegenbeispiel**: $(1,2)$ und $(2,4)$ sind linear abhängig, da $(2,4) = 2 \\cdot (1,2)$.',
+      selfCheck: 'Können drei Vektoren in $\\mathbb{R}^2$ linear unabhängig sein? Warum (nicht)?',
+    },
+    {
+      title: '$\\mathbb{R}^n$ für große $n$ — das formale Fundament',
+      body: 'Die Axiome eines Vektorraums gelten für **jedes** $n$:\n- Abgeschlossenheit (Summe und Skalierungen bleiben im Raum)\n- Kommutativität und Assoziativität der Addition\n- Neutrales Element $\\vec{0}$, inverses Element $-v$\n- Distributivgesetze\n\nFür $n = 768$ oder $n = 4096$ funktioniert dieselbe Algebra. Kein Bild nötig — die Formeln gelten.',
+    },
+    {
+      title: 'ML: Embeddings in $\\mathbb{R}^{512}$ und höher',
+      body: 'Moderne Sprachmodelle repräsentieren Tokens als Vektoren in hochdimensionalen Räumen:\n\n- **BERT-base**: $\\mathbb{R}^{768}$\n- **GPT-3**: $\\mathbb{R}^{12288}$\n- **LLaMA-2-70B**: $\\mathbb{R}^{8192}$\n\nDie **Cosine-Similarity** misst die Ähnlichkeit zweier Embeddings:\n\n$$\\text{sim}(\\mathbf{u}, \\mathbf{v}) = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\|\\mathbf{u}\\| \\|\\mathbf{v}\\|}$$\n\nSemantisch ähnliche Tokens haben hohe Cosine-Similarity — Linearkombination als semantische Arithmetik.',
+      miniExample: 'BERT: $\\text{sim}(\\text{"Hund"}, \\text{"Katze"}) \\approx 0{,}8$, $\\text{sim}(\\text{"Hund"}, \\text{"Auto"}) \\approx 0{,}2$.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'PyTorch: Vektoren und Linearkombinationen',
+      lang: 'python',
+      code: `import torch
+
+# Vektor in R^3 — ein 1D-Tensor
+v1 = torch.tensor([1.0, 2.0, 3.0])   # Feature-Vektor
+v2 = torch.tensor([4.0, 5.0, 6.0])
+
+# Addition und Skalarmultiplikation (komponentenweise)
+v_sum = v1 + v2                        # [5, 7, 9]
+v_scaled = 2.5 * v1                    # [2.5, 5.0, 7.5]
+
+# Linearkombination: c1*v1 + c2*v2
+c1, c2 = 0.3, 0.7
+lin_comb = c1 * v1 + c2 * v2          # gewichteter Durchschnitt
+
+# Embedding-Vektoren in R^768 (wie BERT)
+embedding_dim = 768
+token_embedding = torch.randn(embedding_dim)   # zufälliges Embedding
+# Cosine-Similarity zweier Embeddings
+e1 = torch.nn.functional.normalize(torch.randn(embedding_dim), dim=0)
+e2 = torch.nn.functional.normalize(torch.randn(embedding_dim), dim=0)
+cosine_sim = torch.dot(e1, e2)   # in [-1, 1]; ~0 für zufällige Vektoren
+
+# Lineare Unabhängigkeit prüfen — Rang der Matrix
+A = torch.stack([v1, v2, 2*v1])   # dritte Zeile = 2 * erste → abhängig
+rank = torch.linalg.matrix_rank(A)
+print(f"Rang: {rank}")              # 2 (nicht 3 — linear abhängig!)`,
+      annotation: '`torch.tensor([...])` erstellt Vektoren in $\\mathbb{R}^n$ (1D-Tensoren). Addition und Skalierung sind elementweise — direkte Umsetzung der Vektorraumaxiome. `torch.linalg.matrix_rank` zählt linear unabhängige Vektoren. Für Embeddings: `F.normalize` normiert auf $\\|v\\| = 1$, `torch.dot` berechnet $u \\cdot v$.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Jeder Vektor $v \\in \\mathbb{R}^n$ ist eindeutig als Linearkombination der Standardbasis darstellbar',
+      reasoning:
+        '$v = (v_1, \\dots, v_n)^T$. Behauptung: $v = v_1 e_1 + v_2 e_2 + \\dots + v_n e_n$. Beweis durch direktes Ausrechnen: $(v_1 e_1 + \\dots + v_n e_n)_i = v_i \\cdot (e_i)_i + \\sum_{j \\neq i} v_j \\cdot 0 = v_i$. Eindeutigkeit: Falls $v = \\sum c_i e_i$ und $v = \\sum d_i e_i$, dann $0 = \\sum (c_i - d_i) e_i$ — da $e_i$ lin. unabhängig: $c_i = d_i$ für alle $i$.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Drei Vektoren in $\\mathbb{R}^2$ können linear unabhängig sein',
+      correct: 'In $\\mathbb{R}^2$ gibt es maximal 2 linear unabhängige Vektoren',
+      explanation:
+        'Die Dimension eines Raums begrenzt die maximale Anzahl linear unabhängiger Vektoren. In $\\mathbb{R}^2$ spannt jede Menge von 3 oder mehr Vektoren weniger als $\\mathbb{R}^2$ auf — der dritte Vektor ist immer Linearkombination der ersten zwei.',
+    },
+    {
+      wrong: 'Span zweier Vektoren ist immer $\\mathbb{R}^2$',
+      correct: 'Span zweier Vektoren ist nur dann $\\mathbb{R}^2$, wenn sie linear unabhängig (nicht-parallel) sind',
+      explanation:
+        'Zwei parallele Vektoren, z.B. $(1,2)$ und $(3,6)$, spannen nur eine Gerade auf (1D-Unterraum). Erst nicht-parallele Vektoren decken die ganze Ebene ab.',
+    },
+    {
+      wrong: 'Linearkombinationen von Embeddings ergeben bedeutungslose Vektoren',
+      correct: 'Embedding-Arithmetik kann semantischen Sinn ergeben (Word2Vec-Analogien)',
+      explanation:
+        'Word2Vec zeigte, dass $\\vec{\\text{König}} - \\vec{\\text{Mann}} + \\vec{\\text{Frau}} \\approx \\vec{\\text{Königin}}$. Die Vektorraumstruktur kodiert semantische Relationen als lineare Transformationen.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: "Vectors, what even are they?" (Essence of Linear Algebra, Ep. 1)',
+      type: 'video',
+      note: 'Beste geometrische Intuition — drei Perspektiven (Physik, Informatik, Mathematik) in einem Video',
+    },
+    {
+      title: 'MML Book (Deisenroth et al.), Kapitel 2: "Linear Algebra" — mml-book.github.io',
+      type: 'book',
+      note: 'Rigoroses ML-Mathe; Abschnitt 2.1–2.3 entspricht dieser Lektion',
+    },
+    {
+      title: 'Serlo: "Vektoren" — serlo.org',
+      type: 'article',
+      note: 'Deutsche Referenz mit Übungsaufgaben; Grundlagen bis Linearkombinationen',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p0.vektoren',
+      relation: 'requires',
+      hint: 'Die geometrische Vektorvorstellung aus Phase 0 ist die Basis für die formale Behandlung hier.',
+    },
+    {
+      lessonId: 'p1.norm-skalarprodukt',
+      relation: 'extends',
+      hint: 'Normen und Skalarprodukt messen Längen und Winkel zwischen Vektoren — aufbauend auf dieser Lektion.',
+    },
+    {
+      lessonId: 'p1.vektorraeume-basis-rang',
+      relation: 'extends',
+      hint: 'Unterräume, Basis und Dimension formalisieren die Konzepte Span und lineare Unabhängigkeit.',
+    },
+  ],
+
+  reflection: 'Vektoren sind nicht mehr nur Pfeile — sie sind das universelle Werkzeug der Mathematik für strukturierte Daten. Ein Feature-Vektor, ein Gewichtsvektor, ein BERT-Embedding: alle folgen denselben Axiomen. **Welche der drei Vektorsichtweisen (geometrisch, algebraisch, ML) empfindest du als intuitivste?**',
 }

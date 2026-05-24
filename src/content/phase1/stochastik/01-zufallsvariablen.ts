@@ -195,4 +195,117 @@ export const zufallsvariablen: Lesson = {
       conceptTags: ['probability'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst Zufallsvariablen formal definieren, diskrete von stetigen unterscheiden und erklären, warum ML-Modelle und ihre Ausgaben Zufallsvariablen sind.',
+
+  description:
+    'Zufallsvariablen sind die Grundsprache der Statistik und des Machine Learning. Ob Modellgewichte, Mini-Batch-Auswahl oder Dropout-Masken — fast alles in ML ist eine Zufallsvariable. Diese Lektion baut das formale Fundament auf.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist Zufall?',
+      preprompt: 'Stell dir vor, du wirfst einen Würfel. Das Ergebnis ist unbekannt, bevor du wirfst — aber du weißt, welche Werte möglich sind. Was beschreibt diese Situation mathematisch?',
+      body: 'Ein **Zufallsexperiment** hat einen unbekannten Ausgang aus einer Menge möglicher Ausgänge.\n\nDer **Stichprobenraum** $\\Omega$ enthält alle möglichen Ausgänge:\n\n$$\\Omega = \\{\\omega_1, \\omega_2, \\ldots\\}$$\n\nEin **Ereignis** ist eine Teilmenge $A \\subseteq \\Omega$. Die **Wahrscheinlichkeit** $P(A) \\in [0,1]$ misst, wie oft $A$ auftritt.',
+      miniExample: 'Würfelwurf: $\\Omega = \\{1, 2, 3, 4, 5, 6\\}$. Ereignis "gerade Zahl": $A = \\{2, 4, 6\\}$, $P(A) = 1/2$.',
+    },
+    {
+      title: 'Zufallsvariable — formale Definition',
+      body: 'Eine **Zufallsvariable** $X$ ist eine Funktion, die jedem Ausgang $\\omega \\in \\Omega$ eine reelle Zahl zuordnet:\n\n$$X: \\Omega \\to \\mathbb{R}, \\quad \\omega \\mapsto X(\\omega)$$\n\nSie "übersetzt" abstrakte Ereignisse in messbare Zahlen. Das ermöglicht Rechnen mit Wahrscheinlichkeiten:\n\n$$P(X = k) = P(\\{\\omega \\in \\Omega : X(\\omega) = k\\})$$',
+      miniExample: 'Würfelwurf: $X(\\omega) = \\omega$ (Augenzahl). Dann: $P(X = 3) = P(\\{3\\}) = 1/6$.',
+      selfCheck: 'Ist $X$ eine feste Zahl oder eine Funktion? (Funktion — sie ordnet jedem Elementarereignis eine Zahl zu. Die konkrete Zahl nach dem Würfeln ist eine *Realisierung* von $X$.)',
+    },
+    {
+      title: 'Diskrete vs. stetige Zufallsvariablen',
+      body: '**Diskrete ZV**: nimmt abzählbar viele Werte an — ganze Zahlen, endliche Mengen.\n\n$$P(X = k) \\geq 0, \\quad \\sum_k P(X = k) = 1 \\quad \\text{(PMF)}$$\n\n**Stetige ZV**: nimmt überabzählbar viele Werte an — reelle Intervalle.\n\n$$f(x) \\geq 0, \\quad \\int_{-\\infty}^{\\infty} f(x)\\,dx = 1 \\quad \\text{(PDF)}$$\n\nBei stetigen ZVn gilt $P(X = x) = 0$ für jeden einzelnen Wert — nur Intervalle haben positive Wahrscheinlichkeit.',
+      miniExample: '**Diskret**: Token-ID eines Sprachmodells (endliches Vokabular). **Stetig**: Aktivierungswert eines Neurons (reelle Zahl in $\\mathbb{R}$).',
+    },
+    {
+      title: 'Realisierungen und Verteilung',
+      body: 'Die **Verteilung** von $X$ beschreibt vollständig, welche Werte $X$ mit welcher Wahrscheinlichkeit annimmt.\n\nEine **Realisierung** (auch: Beobachtung) $x = X(\\omega)$ ist der konkrete Wert nach dem Experiment.\n\nBeim Training eines Modells sind die Trainingsdaten **Realisierungen** von Zufallsvariablen, die aus der (unbekannten) Datenverteilung $p_{\\text{data}}(x)$ gezogen wurden:\n\n$$x_1, x_2, \\ldots, x_n \\overset{\\text{i.i.d.}}{\\sim} p_{\\text{data}}$$\n\ni.i.d. = unabhängig und identisch verteilt.',
+      selfCheck: 'Was bedeutet es, dass Trainingsdaten i.i.d. sind? (Jede Beobachtung wird unabhängig aus derselben Verteilung gezogen — eine häufig vereinfachende, aber nützliche Annahme.)',
+    },
+    {
+      title: 'Erwartungswert-Intuition',
+      body: 'Der **Erwartungswert** $\\mathbb{E}[X]$ ist der langfristige Durchschnitt vieler Realisierungen:\n\n$$\\mathbb{E}[X] = \\sum_k k \\cdot P(X = k) \\quad \\text{(diskret)}$$\n\n$$\\mathbb{E}[X] = \\int_{-\\infty}^{\\infty} x \\cdot f(x)\\, dx \\quad \\text{(stetig)}$$\n\nDas ist der **gewichtete Durchschnitt** aller möglichen Werte — gewichtet mit ihrer Wahrscheinlichkeit.',
+      miniExample: 'Fairer Würfel: $\\mathbb{E}[X] = \\frac{1}{6}(1+2+3+4+5+6) = 3{,}5$. Kein Würfel zeigt 3,5 — der Erwartungswert liegt nicht notwendigerweise im Wertebereich.',
+    },
+    {
+      title: 'ML: Modell-Output ist eine Zufallsvariable',
+      body: 'In ML ist **fast alles** eine Zufallsvariable:\n\n- **Gewichts-Initialisierung**: $w_{ij} \\sim \\mathcal{N}(0, \\sigma^2)$ — jedes Gewicht ist eine stetige ZV\n- **Mini-Batch-Auswahl**: diskrete ZV über den Datensatz-Indizes\n- **Dropout-Masken**: $M_i \\sim \\text{Bernoulli}(1-p)$ — binäre ZV\n- **Modell-Output**: $p_\\theta(y \\mid x)$ ist eine bedingte Verteilung\n\nDas Modell lernt die bedingte Verteilung $p_\\theta(y \\mid x)$ — also wie die ZV $Y$ (Label) von der ZV $X$ (Features) abhängt.\n\n**Stochastisches Gradient Descent** heißt "stochastisch", weil der Gradient über eine zufällig gezogene Stichprobe (Mini-Batch) berechnet wird — ein verrauschter Schätzer des echten Gradienten.',
+      selfCheck: 'Warum ist SGD "stochastisch"? (Der Mini-Batch ist eine Zufallsstichprobe → der Gradient ist eine Zufallsvariable, kein deterministischer Wert.)',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Inverted Dropout: Warum Skalierung mit $\\frac{1}{1-p}$?',
+      reasoning:
+        'Sei $M_i \\sim \\text{Bernoulli}(1-p)$ die Dropout-Maske (1 = aktiv, 0 = ausgeblendet). Dann: $\\tilde{a}_i = M_i \\cdot a_i$. Erwartungswert: $\\mathbb{E}[\\tilde{a}_i] = \\mathbb{E}[M_i] \\cdot a_i = (1-p) \\cdot a_i$. Die Aktivierung ist im Erwartungswert kleiner als das Original. Mit Skalierung $\\tilde{a}_i = \\frac{M_i}{1-p} \\cdot a_i$: $\\mathbb{E}[\\tilde{a}_i] = a_i$. Beim Inference (kein Dropout, $M_i = 1$): $\\tilde{a}_i = a_i$ automatisch — keine Anpassung nötig.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Eine Zufallsvariable ist eine Zahl, die sich zufällig ändert',
+      correct: 'Eine Zufallsvariable ist eine Funktion $X: \\Omega \\to \\mathbb{R}$',
+      explanation:
+        'ZV ist keine "zufällige Zahl", sondern eine Abbildung vom Stichprobenraum in die reellen Zahlen. Die "Zufälligkeit" kommt vom Experiment $\\omega \\in \\Omega$, nicht von der Funktion selbst.',
+    },
+    {
+      wrong: 'Diskrete ZV haben immer endlich viele Werte',
+      correct: 'Diskrete ZV haben abzählbar viele Werte — auch abzählbar unendlich viele sind möglich',
+      explanation:
+        'Die Anzahl der Tokens, die ein Sprachmodell generiert, bis es stoppt, ist eine diskrete ZV mit abzählbar unendlichem Wertebereich $\\{1, 2, 3, \\ldots\\}$.',
+    },
+    {
+      wrong: '$P(X = x) = f(x)$ für stetige ZVn',
+      correct: '$P(X = x) = 0$ für jedes einzelne $x$ bei stetigen ZVn; $f(x)$ ist eine Dichte, keine Wahrscheinlichkeit',
+      explanation:
+        'Bei stetigen ZVn hat jeder einzelne Wert Wahrscheinlichkeit 0. Die PDF $f(x)$ ist eine Dichte: $P(a \\leq X \\leq b) = \\int_a^b f(x)\\,dx$.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'StatQuest: "Probability vs Likelihood" (YouTube)',
+      type: 'video',
+      note: 'Klare Unterscheidung zwischen Wahrscheinlichkeit und Likelihood — wichtig für MLE (Lektion 09)',
+    },
+    {
+      title: 'Seeing Theory (Brown University): "Basic Probability" — seeing-theory.brown.edu',
+      type: 'article',
+      note: 'Interaktive Visualisierungen von Stichprobenraum, Ereignissen und Zufallsvariablen',
+    },
+    {
+      title: 'MML Book, Kapitel 6: "Probability and Distributions" — mml-book.github.io',
+      type: 'book',
+      note: 'Rigoroses ML-Mathe; Abschnitt 6.1–6.2 deckt Zufallsvariablen und Verteilungen ab',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.pmf-pdf-cdf',
+      relation: 'extends',
+      hint: 'PMF und PDF beschreiben die Verteilung einer Zufallsvariablen formal — der nächste Schritt nach dieser Lektion.',
+    },
+    {
+      lessonId: 'p0.wahrscheinlichkeit',
+      relation: 'requires',
+      hint: 'Grundlegende Wahrscheinlichkeitsrechnung (Axiome, Laplace-Modell) ist Voraussetzung für Zufallsvariablen.',
+    },
+    {
+      lessonId: 'p1.erwartungswert-varianz',
+      relation: 'extends',
+      hint: 'Erwartungswert und Varianz sind die wichtigsten Kenngrößen einer Zufallsvariablen — Lektion 05 vertieft das.',
+    },
+    {
+      lessonId: 'p1.bedingte-wahrscheinlichkeit',
+      relation: 'see-also',
+      hint: '$p_\\theta(y \\mid x)$ ist eine bedingte Verteilung — Lektion 07 erklärt, was das bedeutet.',
+    },
+  ],
+
+  reflection: 'Zufallsvariablen sind nicht abstrakt — jeder Forward-Pass eines neuronalen Netzes arbeitet mit Zufallsvariablen: Mini-Batch-Samples, Dropout-Masken, stochastische Aktivierungen. **Was hat dich am meisten überrascht: dass $P(X = x) = 0$ für stetige ZVn, oder dass SGD "stochastisch" im präzisen Sinne ist?**',
 }
