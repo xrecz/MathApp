@@ -49,7 +49,7 @@ import { bedingteWahrscheinlichkeit } from '../src/content/phase1/stochastik/07-
 import { bayesTheorem } from '../src/content/phase1/stochastik/08-bayes-theorem'
 import { mle } from '../src/content/phase1/stochastik/09-mle'
 import { mapRegularisierungBiasVariance } from '../src/content/phase1/stochastik/10-map-regularisierung-bias-variance'
-import type { Lesson, Exercise, Derivation, CommonMistake, FurtherResource } from '../src/types'
+import type { Lesson, Exercise, Derivation, CommonMistake, FurtherResource, ConceptStep, CodeBridge, CrossLink } from '../src/types'
 
 const phase0Lessons: Lesson[] = [
   brueche,
@@ -150,6 +150,26 @@ function validateLesson(lesson: Lesson): string[] {
     if (!['video', 'article', 'exercise', 'book'].includes(r.type)) {
       errors.push(`furtherResource[${i}]: invalid type "${r.type}"`)
     }
+  })
+
+  lesson.conceptSteps?.forEach((s: ConceptStep, i: number) => {
+    if (!s.title) errors.push(`conceptStep[${i}]: title required`)
+    if (!s.body) errors.push(`conceptStep[${i}]: body required`)
+  })
+
+  lesson.codeBridges?.forEach((b: CodeBridge, i: number) => {
+    if (!b.title) errors.push(`codeBridge[${i}]: title required`)
+    if (!['python', 'typescript'].includes(b.lang)) errors.push(`codeBridge[${i}]: invalid lang "${b.lang}"`)
+    if (!b.code) errors.push(`codeBridge[${i}]: code required`)
+    if (!b.annotation) errors.push(`codeBridge[${i}]: annotation required`)
+  })
+
+  lesson.crossLinks?.forEach((cl: CrossLink, i: number) => {
+    if (!cl.lessonId) errors.push(`crossLink[${i}]: lessonId required`)
+    if (!['requires', 'extends', 'see-also'].includes(cl.relation)) {
+      errors.push(`crossLink[${i}]: invalid relation "${cl.relation}"`)
+    }
+    if (!cl.hint) errors.push(`crossLink[${i}]: hint required`)
   })
 
   return errors

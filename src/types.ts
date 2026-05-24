@@ -48,6 +48,29 @@ export interface FurtherResource {
   note?: string       // Optionale Anmerkung, z.B. "Sehr visuell"
 }
 
+// Phase-O V2: Multi-step concept flow and code bridges
+export interface ConceptStep {
+  title: string       // Kurzüberschrift, z.B. "Was ist eine Potenz?"
+  body: string        // Hauptinhalt, Markdown+Math
+  visual?: string     // Inline SVG (optional)
+  preprompt?: string  // Denkfrage VOR dem Inhalt, Markdown
+  miniExample?: string // Kurzes Rechenbeispiel, Markdown
+  selfCheck?: string  // Verständnisfrage am Ende, Markdown
+}
+
+export interface CodeBridge {
+  title: string                       // z.B. "PyTorch: L2-Norm berechnen"
+  lang: 'python' | 'typescript'
+  code: string                        // Code-Snippet
+  annotation: string                  // Erklärung des Codes, Markdown
+}
+
+export interface CrossLink {
+  lessonId: string                            // z.B. "p0.potenzen-wurzeln"
+  relation: 'requires' | 'extends' | 'see-also'
+  hint: string                                // Kurzer Text, Markdown
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -60,11 +83,17 @@ export interface Lesson {
     deepen: Block[]
   }
   reviewCards: ReviewCard[]
-  // Phase-O optionale Vertiefungsfelder
+  // Phase-O V1: optionale Vertiefungsfelder
   description?: string
   derivations?: Derivation[]
   commonMistakes?: CommonMistake[]
   furtherResources?: FurtherResource[]
+  // Phase-O V2: Multi-step flow, code bridges, cross-links
+  learningOutcome?: string      // "Nach dieser Lektion kannst du…"
+  conceptSteps?: ConceptStep[]  // Ersetzt blocks.show wenn vorhanden (5-7 Schritte)
+  codeBridges?: CodeBridge[]    // Ersetzt blocks.explain wenn vorhanden
+  crossLinks?: CrossLink[]      // Auf COMPLETE-Screen angezeigt
+  reflection?: string           // Abschlussfrage, Markdown
 }
 
 export interface Topic {

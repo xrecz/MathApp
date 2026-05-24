@@ -140,6 +140,104 @@ math-keyboard { display: block; }
 .mistake-card__wrong { text-decoration: line-through; color: rgb(248 113 113); }
 .mistake-card__correct { color: rgb(74 222 128); font-weight: 500; }
 
+/* ─── Phase-O V2: Multi-step concept & code-bridge components ── */
+
+.preprompt-box {
+  background: rgb(251 191 36 / 8%);
+  border-left: 3px solid rgb(251 191 36);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: rgb(253 224 71);
+  font-size: 14px;
+}
+
+.mini-example-box {
+  background: rgb(16 185 129 / 8%);
+  border-left: 3px solid rgb(16 185 129);
+  padding: 12px 14px;
+  margin-top: 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+}
+
+.selfcheck-box {
+  background: rgb(139 92 246 / 8%);
+  border-left: 3px solid rgb(139 92 246);
+  padding: 10px 14px;
+  margin-top: 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  color: rgb(196 181 253);
+}
+
+.code-bridge {
+  background: rgb(17 24 39);
+  border: 1px solid rgb(55 65 81);
+  border-radius: 12px;
+  margin: 12px 0;
+  overflow: hidden;
+}
+.code-bridge__title {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 14px 8px;
+  color: rgb(156 163 175);
+  border-bottom: 1px solid rgb(55 65 81);
+}
+.code-bridge__code {
+  background: rgb(9 9 11);
+  padding: 14px;
+  font-family: 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  white-space: pre;
+  color: rgb(134 239 172);
+  line-height: 1.6;
+  margin: 0;
+}
+.code-bridge__annotation {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: rgb(156 163 175);
+}
+
+.crosslink-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgb(30 41 59);
+  border: 1px solid rgb(51 65 85);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.crosslink-card:hover { background: rgb(51 65 85); }
+.crosslink-card__relation {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgb(148 163 184);
+  white-space: nowrap;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.crosslink-card__hint { font-size: 13px; flex: 1; }
+.crosslink-card__hint p { margin: 0; }
+
+.reflection-box {
+  background: rgb(15 23 42);
+  border: 1px solid rgb(99 102 241 / 30%);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  color: rgb(199 210 254);
+  font-style: italic;
+}
+.reflection-box p { margin: 0; }
+
 /* ─── Animations ──────────────────────────────────────────────── */
 
 /* Block-level slide-up fade on screen transitions */

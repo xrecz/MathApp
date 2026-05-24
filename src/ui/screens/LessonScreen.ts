@@ -8,7 +8,7 @@ import { recordActivity, xpForAnswer, XP_LESSON_BONUS } from '../../engine/sessi
 import { renderMath } from '../../lib/katex'
 import { renderMarkdown, renderBlock } from '../components/MathRender'
 import { haptic } from '../../lib/haptics'
-import type { Lesson, Exercise, MasteryLevel, Derivation, CommonMistake, FurtherResource } from '../../types'
+import type { Lesson, Exercise, MasteryLevel, Derivation, CommonMistake, FurtherResource, CodeBridge, CrossLink } from '../../types'
 import '../components/MathKeyboard'
 import '../components/HintsAccordion'
 
@@ -42,6 +42,7 @@ export async function renderLessonScreen(container: HTMLElement, lessonId: strin
   const fsm = new LessonStateMachine(lesson.blocks.practice.length)
   let xpEarned = 0
   let practiceIdx = 0
+  let conceptStepIdx = 0
 
   const allTopics = course.phases.flatMap(p => p.topics)
   const parentTopic = allTopics.find(t => t.lessons.some(l => l.id === lessonId))
@@ -55,12 +56,28 @@ export async function renderLessonScreen(container: HTMLElement, lessonId: strin
         renderIntro(container, lesson!, topicId, prereqTitles, existing?.masteryLevel ?? null, fsm, render)
         break
       case 'CONCEPT':
-        renderBlocks(container, lesson!.blocks.show, 'Konzept', fsm, render,
-          renderMistakesHtml(lesson!.commonMistakes))
+        if (lesson!.conceptSteps?.length) {
+          renderConceptStep(container, lesson!, conceptStepIdx, render, () => {
+            conceptStepIdx++
+            if (conceptStepIdx >= lesson!.conceptSteps!.length) {
+              conceptStepIdx = 0
+              fsm.transition('NEXT')
+            }
+            render()
+          }, renderMistakesHtml(lesson!.commonMistakes))
+        } else {
+          renderBlocks(container, lesson!.blocks.show, 'Konzept', fsm, render,
+            renderMistakesHtml(lesson!.commonMistakes))
+        }
         break
       case 'WORKED_EXAMPLE':
-        renderBlocks(container, lesson!.blocks.explain, 'Beispiel', fsm, render,
-          renderDerivationsHtml(lesson!.derivations))
+        if (lesson!.codeBridges?.length) {
+          renderCodeBridgeScreen(container, lesson!, fsm, render,
+            renderDerivationsHtml(lesson!.derivations))
+        } else {
+          renderBlocks(container, lesson!.blocks.explain, 'Beispiel', fsm, render,
+            renderDerivationsHtml(lesson!.derivations))
+        }
         break
       case 'PRACTICE': renderPractice(container, lesson!, practiceIdx, fsm, render, onCorrect, onIncorrect); break
       case 'DEEPEN':
@@ -244,7 +261,7 @@ function renderBlocks(
       </div>
     </div>`
 
-  container.querySelectorAll<HTMLElement>('.math-block').forEach(el => renderMath(el))
+  renderMath(container)
   container.querySelector('#back-btn')?.addEventListener('click', () => navigate('/'))
   container.querySelector('#next-btn')?.addEventListener('click', () => {
     haptic.light()
@@ -305,7 +322,7 @@ function renderPractice(
       </div>
     </div>`
 
-  container.querySelectorAll<HTMLElement>('.math-block, #prompt').forEach(el => renderMath(el))
+  renderMath(container)
 
   const hintsEl = container.querySelector('#hints') as (HTMLElement & {
     setHints?: (h: [string, string, string], cb: (l: number) => void) => void
@@ -477,10 +494,25 @@ function showFeedback(
         </details>
       </div>`
 
-  fb.querySelectorAll<HTMLElement>('.math-block').forEach(el => renderMath(el))
+  renderMath(fb as HTMLElement)
 }
 
 function renderComplete(container: HTMLElement, lesson: Lesson, xpEarned: number, mastery: MasteryState) {
+  const crossLinksHtml = lesson.crossLinks?.length
+    ? `<div class="w-full max-w-xs mx-auto mb-4 text-left">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2 px-1">Weiterlernen</h3>
+        ${lesson.crossLinks.map(cl => `
+          <div class="crosslink-card" data-lesson-id="${cl.lessonId}">
+            <span class="crosslink-card__relation">${crossLinkLabel(cl.relation)}</span>
+            <span class="crosslink-card__hint">${renderMarkdown(cl.hint)}</span>
+          </div>`).join('')}
+      </div>`
+    : ''
+
+  const reflectionHtml = lesson.reflection
+    ? `<div class="reflection-box w-full max-w-xs mx-auto mb-4 text-left">${renderMarkdown(lesson.reflection)}</div>`
+    : ''
+
   container.innerHTML = `
     <div class="screen items-center justify-center text-center py-12 block-transition">
       <div class="text-6xl mb-4">🎉</div>
@@ -500,8 +532,123 @@ function renderComplete(container: HTMLElement, lesson: Lesson, xpEarned: number
           <span class="text-orange-400">+1 Review-Karte${lesson.reviewCards.length !== 1 ? 'n' : ''}</span>
         </div>
       </div>
+      ${reflectionHtml}
+      ${crossLinksHtml}
       <button id="home-btn" class="btn-primary w-full max-w-xs mx-auto no-tap-highlight">Zur Übersicht</button>
     </div>`
 
+  renderMath(container)
   container.querySelector('#home-btn')?.addEventListener('click', () => navigate('/'))
+  container.querySelectorAll<HTMLElement>('.crosslink-card[data-lesson-id]').forEach(card => {
+    card.addEventListener('click', () => navigate(`/lesson/${card.dataset['lessonId']}`))
+  })
+}
+
+function crossLinkLabel(relation: CrossLink['relation']): string {
+  return { requires: '⬅ Basis', extends: '➡ Aufbau', 'see-also': '↔ Verwandt' }[relation]
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function renderConceptStep(
+  container: HTMLElement,
+  lesson: Lesson,
+  stepIdx: number,
+  _onReRender: () => void,
+  onStepNext: () => void,
+  mistakesExtraHtml = '',
+): void {
+  const steps = lesson.conceptSteps!
+  const step = steps[stepIdx]
+  const isLast = stepIdx === steps.length - 1
+  const pct = Math.round(((stepIdx + 1) / steps.length) * 100)
+
+  const prepromptHtml = step.preprompt
+    ? `<div class="preprompt-box">${renderMarkdown(step.preprompt)}</div>`
+    : ''
+  const visualHtml = step.visual
+    ? `<div class="my-4 flex justify-center">${step.visual}</div>`
+    : ''
+  const miniExHtml = step.miniExample
+    ? `<div class="mini-example-box">${renderMarkdown(step.miniExample)}</div>`
+    : ''
+  const selfCheckHtml = step.selfCheck
+    ? `<div class="selfcheck-box">${renderMarkdown(step.selfCheck)}</div>`
+    : ''
+
+  container.innerHTML = `
+    <div class="screen block-transition">
+      <div class="top-bar gap-3">
+        <button id="back-btn" class="text-gray-400 hover:text-white text-xl no-tap-highlight">←</button>
+        <span class="text-sm text-gray-400 font-medium">Konzept</span>
+        <div class="flex-1 progress-track ml-2">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+        <span class="text-xs text-gray-500">${stepIdx + 1}/${steps.length}</span>
+      </div>
+      <div class="flex-1 py-4 px-1">
+        ${prepromptHtml}
+        <h2 class="text-lg font-bold mb-3 px-1">${step.title}</h2>
+        <div class="math-block">${renderMarkdown(step.body)}</div>
+        ${visualHtml}
+        ${miniExHtml}
+        ${selfCheckHtml}
+        ${isLast ? mistakesExtraHtml : ''}
+      </div>
+      <div class="action-bar">
+        <button id="next-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
+          ${isLast ? 'Zum Beispiel →' : 'Weiter →'}
+        </button>
+      </div>
+    </div>`
+
+  renderMath(container)
+  container.querySelector('#back-btn')?.addEventListener('click', () => navigate('/'))
+  container.querySelector('#next-btn')?.addEventListener('click', () => {
+    haptic.light()
+    onStepNext()
+  })
+}
+
+function renderCodeBridgeScreen(
+  container: HTMLElement,
+  lesson: Lesson,
+  fsm: LessonStateMachine,
+  onNext: () => void,
+  derivationsExtraHtml = '',
+): void {
+  const bridges = lesson.codeBridges!
+  const bridgesHtml = bridges.map((b: CodeBridge) => `
+    <div class="code-bridge">
+      <div class="code-bridge__title">${b.title} <span class="text-xs font-mono text-gray-500">${b.lang}</span></div>
+      <pre class="code-bridge__code"><code>${escapeHtml(b.code)}</code></pre>
+      <div class="code-bridge__annotation">${renderMarkdown(b.annotation)}</div>
+    </div>`).join('')
+
+  container.innerHTML = `
+    <div class="screen block-transition">
+      <div class="top-bar gap-3">
+        <button id="back-btn" class="text-gray-400 hover:text-white text-xl no-tap-highlight">←</button>
+        <span class="text-sm text-gray-400 font-medium">Code-Brücke</span>
+        <div class="flex-1 progress-track ml-2">
+          <div class="progress-fill" style="width:55%"></div>
+        </div>
+      </div>
+      <div class="flex-1 py-4 px-1">${bridgesHtml}${derivationsExtraHtml}</div>
+      <div class="action-bar">
+        <button id="next-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
+          Zu den Aufgaben →
+        </button>
+      </div>
+    </div>`
+
+  renderMath(container)
+  container.querySelector('#back-btn')?.addEventListener('click', () => navigate('/'))
+  container.querySelector('#next-btn')?.addEventListener('click', () => {
+    haptic.light()
+    fsm.transition('NEXT')
+    onNext()
+  })
 }
