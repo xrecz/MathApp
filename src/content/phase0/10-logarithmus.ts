@@ -178,48 +178,59 @@ export const logarithmus: Lesson = {
   ],
 
   learningOutcome:
-    'Du kannst den Logarithmus als Umkehrfunktion der Potenz erklären, die drei Logarithmengesetze anwenden und verstehen, warum Log-Wahrscheinlichkeiten und der LogSumExp-Trick in ML numerisch stabil sind.',
+    'Du kannst Logarithmusgesetze sicher anwenden, den natürlichen Logarithmus interpretieren und verstehst, warum Cross-Entropy-Loss und der LogSumExp-Trick auf dem Logarithmus basieren.',
 
   description:
-    'Der Logarithmus ist die Umkehrfunktion der Potenz — und er ist überall in ML. Cross-Entropy-Loss, Softmax-Stabilisierung und Information-Theorie bauen alle auf dem Logarithmus auf. Du lernst die Gesetze, die Intuition und den entscheidenden LogSumExp-Trick.',
+    'Der Logarithmus ist die Umkehrfunktion der Exponentialfunktion — und das heimliche Herzstück fast aller ML-Loss-Funktionen. Du lernst die Logarithmusgesetze, den natürlichen Logarithmus ln, Basiswechsel sowie die numerische Stabilität durch log-Wahrscheinlichkeiten kennen.',
 
   conceptSteps: [
     {
       title: 'Was ist ein Logarithmus?',
-      preprompt: 'Wie viele Mal muss man 2 mit sich selbst multiplizieren, um 1024 zu erhalten? Was wäre eine kompakte Schreibweise für diese Frage?',
-      body: 'Der **Logarithmus** dreht die Potenz um: statt $a^c = b$ zu berechnen, fragt er "welches $c$ ergibt $b$?".\n\n$$\\log_a(b) = c \\quad \\Leftrightarrow \\quad a^c = b$$\n\n$a$ heißt **Basis**, $b$ heißt **Numerus** (muss positiv sein), $c$ ist das Ergebnis.\n\n**Wichtige Spezialfälle**:\n- $\\log_2(8) = 3$, weil $2^3 = 8$\n- $\\log_{10}(1000) = 3$, weil $10^3 = 1000$\n- $\\ln(e^5) = 5$, weil $e^5 = e^5$',
+      preprompt: '$2^{10} = 1024$. Wenn dir jemand sagt "ich habe 1024 durch wiederholtes Verdoppeln aus 1 erzeugt" — wie oft hat er verdoppelt?',
+      body: 'Der **Logarithmus** beantwortet die Frage: "Welche Potenz brauche ich?"\n\n$$\\log_a(b) = c \\quad \\Longleftrightarrow \\quad a^c = b$$\n\n$a$ heißt **Basis**, $b$ heißt **Numerus**, $c$ ist der Logarithmuswert.\n\nBeispiele:\n$$\\log_2(8) = 3 \\quad \\text{weil} \\quad 2^3 = 8$$\n$$\\log_{10}(1000) = 3 \\quad \\text{weil} \\quad 10^3 = 1000$$',
       miniExample: '$\\log_2(32) = 5$, weil $2^5 = 32$.',
       selfCheck: 'Was ist $\\log_3(81)$? (Antwort: 4, weil $3^4 = 81$.)',
     },
     {
-      title: 'Die drei Logarithmengesetze',
-      preprompt: 'Wenn $\\log$ eine Potenz umkehrt — was passiert dann mit dem Potenzgesetz $a^m \\cdot a^n = a^{m+n}$, wenn man $\\log$ davon nimmt?',
-      body: 'Die Logarithmengesetze folgen direkt aus den Potenzgesetzen:\n\n$$\\log(a \\cdot b) = \\log a + \\log b \\qquad \\text{(Produkt → Summe)}$$\n\n$$\\log\\!\\left(\\frac{a}{b}\\right) = \\log a - \\log b \\qquad \\text{(Quotient → Differenz)}$$\n\n$$\\log(a^n) = n \\cdot \\log a \\qquad \\text{(Exponent → Faktor)}$$\n\nDer Logarithmus macht aus Produkten Summen — das ist sein großer Vorteil für Berechnungen.',
-      miniExample: '$\\ln(0{,}25) = \\ln\\!\\left(\\frac{1}{4}\\right) = \\ln(1) - \\ln(4) = 0 - \\ln(4) \\approx -1{,}386$',
-      selfCheck: 'Vereinfache $\\log(a^3 \\cdot b^2)$ mithilfe der Gesetze. (Antwort: $3\\log a + 2\\log b$.)',
+      title: 'Die drei Logarithmusgesetze',
+      preprompt: 'Logarithmus wandelt Multiplikation in Addition um — warum könnte das numerisch nützlich sein?',
+      body: 'Diese drei Gesetze gelten für jede Basis:\n\n$$\\log(a \\cdot b) = \\log a + \\log b \\qquad \\text{(Produkt → Summe)}$$\n\n$$\\log\\!\\left(\\frac{a}{b}\\right) = \\log a - \\log b \\qquad \\text{(Quotient → Differenz)}$$\n\n$$\\log(a^n) = n \\cdot \\log a \\qquad \\text{(Potenz → Faktor)}$$\n\nMerkhilfe: Logarithmus "senkt" die Rechenebene — aus Potenz wird Multiplikation, aus Multiplikation wird Addition.',
+      miniExample: '$\\log_2(32) = \\log_2(4 \\cdot 8) = \\log_2(4) + \\log_2(8) = 2 + 3 = 5$ ✓',
+      selfCheck: 'Vereinfache $\\ln(e^{2x})$. (Antwort: $2x$, wegen des Potenz-Gesetzes.)',
     },
     {
       title: 'Der natürliche Logarithmus ln',
-      body: 'Der **natürliche Logarithmus** $\\ln$ hat die Basis $e \\approx 2{,}718$ (Eulersche Zahl). Er ist in Analysis und ML der Standard-Logarithmus:\n\n$$\\ln(x) = \\log_e(x)$$\n\nWichtige Werte:\n$$\\ln(1) = 0 \\qquad \\ln(e) = 1 \\qquad \\ln(e^x) = x$$\n\nUmkehrung: $e^{\\ln(x)} = x$\n\nDie Ableitung ist besonders schön: $\\frac{d}{dx}\\ln(x) = \\frac{1}{x}$.',
-      miniExample: '$\\ln(e^3) = 3$, $\\ln(1) = 0$, $e^{\\ln(7)} = 7$.',
-      selfCheck: 'Warum ist $\\ln(0)$ nicht definiert? (Antwort: kein $c$ erfüllt $e^c = 0$, da $e^c > 0$ immer gilt.)',
+      body: 'Die wichtigste Basis in Analysis und ML ist die **Eulersche Zahl** $e \\approx 2{,}718$:\n\n$$\\ln(x) := \\log_e(x)$$\n\n**Schlüsseleigenschaften**:\n$$\\ln(e^x) = x \\qquad e^{\\ln(x)} = x \\qquad \\ln(1) = 0 \\qquad \\ln(e) = 1$$\n\n$\\ln$ und $e^x$ sind echte **Umkehrfunktionen** — sie heben sich gegenseitig auf. Wichtig: $\\ln(x)$ ist nur für $x > 0$ definiert.',
+      visual: `<svg viewBox="0 0 260 100" width="260" height="100" aria-label="ln Funktion">
+        <rect x="0" y="0" width="260" height="100" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <line x1="30" y1="10" x2="30" y2="90" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <line x1="20" y1="70" x2="250" y2="70" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <text x="20" y="8" fill="rgb(156 163 175)" font-size="9" font-family="monospace">ln(x)</text>
+        <polyline points="31,90 40,76 55,68 75,62 100,56 130,51 165,47 200,43 240,40" stroke="rgb(134 239 172)" stroke-width="2" fill="none"/>
+        <line x1="100" y1="10" x2="100" y2="90" stroke="rgb(99 102 241)" stroke-width="1" stroke-dasharray="3"/>
+        <text x="97" y="8" fill="rgb(99 102 241)" font-size="8" font-family="monospace">e</text>
+        <text x="102" y="54" fill="rgb(251 191 36)" font-size="8" font-family="monospace">ln(e)=1</text>
+        <text x="32" y="68" fill="rgb(96 165 250)" font-size="8" font-family="monospace">ln(1)=0</text>
+      </svg>`,
+      miniExample: '$\\ln(e^3) = 3$; $\\;e^{\\ln(5)} = 5$',
+      selfCheck: 'Warum gilt $\\ln(0)$ nicht? (Weil $e^x > 0$ für alle $x$ — also gibt es kein $x$ mit $e^x = 0$.)',
     },
     {
-      title: 'Basis-Wechsel zwischen Logarithmen',
-      body: 'Manchmal muss man zwischen Basen wechseln. Die **Basis-Wechsel-Formel**:\n\n$$\\log_a(x) = \\frac{\\ln(x)}{\\ln(a)} = \\frac{\\log_b(x)}{\\log_b(a)}$$\n\nIn der Praxis: In ML und Python rechnet man fast immer mit $\\ln$ (`torch.log`, `np.log`). Wenn du $\\log_2$ brauchst:\n\n$$\\log_2(x) = \\frac{\\ln(x)}{\\ln(2)} \\approx \\frac{\\ln(x)}{0{,}693}$$',
-      miniExample: '$\\log_2(8) = \\frac{\\ln(8)}{\\ln(2)} = \\frac{3\\ln(2)}{\\ln(2)} = 3$.',
+      title: 'Basiswechsel und log₂',
+      body: 'Manchmal braucht man einen anderen Logarithmus (z.B. $\\log_2$ in der Informatik). Die **Basiswechselformel** hilft:\n\n$$\\log_a(x) = \\frac{\\ln(x)}{\\ln(a)} = \\frac{\\log_b(x)}{\\log_b(a)}$$\n\nIn Python/PyTorch gibt es nur `torch.log` (= $\\ln$), daher:\n\n$$\\log_2(x) = \\frac{\\ln(x)}{\\ln(2)} \\approx \\frac{\\ln(x)}{0{,}693}$$',
+      miniExample: '$\\log_2(16) = \\frac{\\ln(16)}{\\ln(2)} = \\frac{4 \\ln 2}{\\ln 2} = 4$ ✓',
+      selfCheck: 'Mit welchem Python-Code berechnet man $\\log_{10}(100)$? (`torch.log(x) / torch.log(torch.tensor(10.0))`)',
     },
     {
-      title: 'Log-Skala — warum logarithmisch?',
-      body: 'Auf einer **linearen Skala** sind gleiche Abstände gleich groß. Auf einer **Log-Skala** repräsentieren gleiche Abstände gleiche Faktoren:\n\n$$1, 10, 100, 1000 \\quad \\to \\quad \\log_{10}: \\quad 0, 1, 2, 3$$\n\nLog-Skala ist nützlich, wenn Werte viele Größenordnungen überspannen: Wahrscheinlichkeiten ($10^{-100}$ bis $1$), Loss-Kurven, Frequenzen.\n\nWenn $\\hat{y} = 0{,}001$, ist $\\ln(0{,}001) \\approx -6{,}9$ — viel besser zu rechnen als $10^{-1000}$.',
-      miniExample: 'Wahrscheinlichkeit einer Sequenz von 100 Tokens: $P = \\prod_{t=1}^{100} p_t$. Als $\\log P = \\sum_{t=1}^{100} \\ln(p_t)$ — kein Underflow!',
-      selfCheck: 'Warum verwendet man $\\log P$ statt $P$ bei Wahrscheinlichkeiten sehr langer Sequenzen? (Antwort: Produkte sehr kleiner Zahlen führen zu numerischem Underflow; Logarithmen machen Produkte zu Summen.)',
+      title: 'Log-Skala: warum überhaupt?',
+      body: 'Wenn Zahlen über viele Größenordnungen variieren (z.B. $10^{-6}$ bis $10^6$), hilft eine **logarithmische Skala**:\n\n- Training-Loss fällt oft von $2{,}3$ auf $0{,}001$ → y-Achse log-skaliert macht das sichtbar\n- Sehr kleine Wahrscheinlichkeiten ($10^{-40}$) werden durch $\\ln$ zu handhabbaren Zahlen ($-92$)\n- **Log-Wahrscheinlichkeiten** verhindert numerischen Underflow:\n\n$$\\ln P(x_1, x_2, \\ldots, x_n) = \\sum_i \\ln P(x_i)$$\n\nStatt $10^{-300} \\cdot 10^{-300} \\cdot \\ldots = 0$ (Underflow) rechnet man mit $-300 + (-300) + \\ldots$.',
+      selfCheck: 'Warum ist $\\ln(10^{-300}) = -300 \\cdot \\ln(10) \\approx -690$ viel besser als $10^{-300}$ direkt zu speichern?',
     },
     {
       title: 'ML: Cross-Entropy-Loss und LogSumExp',
-      body: '**Cross-Entropy-Loss** für Klassifikation (eine richtige Klasse):\n\n$$L = -\\ln(\\hat{y}_{\\text{richtig}})$$\n\nBei $\\hat{y} \\to 1$: $L \\to 0$ (kein Fehler). Bei $\\hat{y} \\to 0$: $L \\to +\\infty$ (maximale Strafe).\n\n**LogSumExp-Trick** für Softmax-Stabilität:\n\n$$\\text{softmax}_i(z) = \\frac{e^{z_i}}{\\sum_j e^{z_j}}$$\n\nProblem: $e^{1000}$ läuft über. Lösung: Subtrahiere das Maximum:\n\n$$\\text{logsumexp}(z) = m + \\ln\\!\\left(\\sum_j e^{z_j - m}\\right), \\quad m = \\max_j z_j$$',
-      miniExample: '$(z_1, z_2, z_3) = (1000, 999, 998)$ → ohne Trick: Overflow. Mit Trick: $m=1000$, dann $e^0 + e^{-1} + e^{-2}$ — problemlos.',
-      selfCheck: 'Warum ist Cross-Entropy eine stärkere Strafe für falsche Vorhersagen als MSE? (Antwort: $-\\ln(\\hat{y}) \\to +\\infty$ wenn $\\hat{y} \\to 0$; MSE wächst nur quadratisch.)',
+      body: '**Cross-Entropy-Loss** für Klassifikation:\n\n$$L = -\\sum_i y_i \\ln(\\hat{y}_i)$$\n\nFür eine richtige Klasse vereinfacht sich das zu $L = -\\ln(\\hat{y}_{\\text{richtig}})$.\n\nPerfekte Vorhersage: $-\\ln(1) = 0$; falsche sichere Vorhersage: $-\\ln(0) \\to \\infty$.\n\n**LogSumExp-Trick** für numerische Stabilität in Softmax:\n\n$$\\ln \\sum_j e^{z_j} = c + \\ln \\sum_j e^{z_j - c} \\qquad \\text{mit } c = \\max_j z_j$$\n\nOhne diesen Trick: $e^{1000}$ ist Overflow. Mit $c$: alle Terme $\\leq e^0 = 1$.',
+      miniExample: '$-\\ln(0{,}5) = \\ln(2) \\approx 0{,}693$ — Loss für eine "50%-sichere" Vorhersage',
+      selfCheck: 'Warum wird Cross-Entropy-Loss mit einem Minus-Zeichen gerechnet? (Weil $\\ln(\\hat{y}) \\leq 0$ für $\\hat{y} \\in [0,1]$ — das Minus macht den Loss positiv.)',
     },
   ],
 
@@ -228,29 +239,31 @@ export const logarithmus: Lesson = {
       title: 'PyTorch: Cross-Entropy und LogSumExp',
       lang: 'python',
       code: `import torch
-import torch.nn as nn
+import torch.nn.functional as F
 
-# Cross-Entropy-Loss intern: -ln(p_richtig)
-logits = torch.tensor([2.0, 1.0, 0.5])   # Rohausgabe des Modells
-label  = torch.tensor([0])                 # Klasse 0 ist richtig
+# Rohe Logits (nicht normalisiert)
+logits = torch.tensor([2.0, 1.0, 0.1])
 
-# PyTorch rechnet intern: log(softmax(logits))[label]
-loss_fn = nn.CrossEntropyLoss()
-loss = loss_fn(logits.unsqueeze(0), label)
-# loss ≈ 0.418
+# Naive Softmax: e^2000 wäre Overflow — deshalb LogSumExp-Trick
+# log_softmax = z_i - log(sum(exp(z_j)))
+log_probs = F.log_softmax(logits, dim=0)
+# = [2.0, 1.0, 0.1] - logsumexp([2.0, 1.0, 0.1])
+# logsumexp = max + log(sum(exp(z - max))) -- numerisch stabil!
 
-# Manuell: LogSumExp-Trick für numerisch stabiles log(softmax)
-z = logits
-m = z.max()                             # Subtraktion des Maximums
-log_sum_exp = m + torch.log(           # = ln(sum(e^(z-m))) + m
-    torch.exp(z - m).sum()
-)
-log_p_0 = z[0] - log_sum_exp           # = log(softmax(z))[0]
-manual_loss = -log_p_0                  # Cross-Entropy = -log(p_richtig)
+# Cross-Entropy-Loss = -log(p_richtige_klasse)
+# torch.nn.CrossEntropyLoss kombiniert log_softmax + NLLLoss
+label = torch.tensor(0)   # Klasse 0 ist richtig
+ce_loss = F.cross_entropy(logits.unsqueeze(0), label.unsqueeze(0))
+# Entspricht: -log_softmax(logits)[0]
 
-# torch.logsumexp macht genau diesen Trick:
-stable = torch.logsumexp(z, dim=0)     # numerisch stabil`,
-      annotation: '`nn.CrossEntropyLoss` erwartet rohe Logits (nicht Softmax-Output) und rechnet intern den LogSumExp-Trick. `torch.logsumexp` implementiert $m + \\ln(\\sum e^{z_i - m})$ — ein direktes Logarithmengesetz angewendet.',
+# Manuell: negative log-likelihood
+nll = -log_probs[label]
+print(f"ce_loss: {ce_loss:.4f}, nll: {nll:.4f}")  # gleich!
+
+# Wahrscheinlichkeiten aus log-Wahrscheinlichkeiten
+probs = torch.exp(log_probs)
+print(f"P(Klasse 0) = {probs[0]:.3f}")  # ~ 0.659`,
+      annotation: '`F.log_softmax` verwendet intern den LogSumExp-Trick: $\\ln \\sum_j e^{z_j - c}$ mit $c = \\max z_j$. `F.cross_entropy` ist identisch mit $-\\ln(\\hat{y}_{\\text{richtig}})$ — direkt die Cross-Entropy-Formel. `torch.exp(log_probs)` kehrt den Logarithmus um: $e^{\\ln p} = p$.',
     },
   ],
 
@@ -258,12 +271,12 @@ stable = torch.logsumexp(z, dim=0)     # numerisch stabil`,
     {
       claim: '$\\log(a \\cdot b) = \\log a + \\log b$',
       reasoning:
-        'Seien $\\alpha = \\log_c(a)$ und $\\beta = \\log_c(b)$, also $a = c^\\alpha$ und $b = c^\\beta$. Dann gilt $a \\cdot b = c^\\alpha \\cdot c^\\beta = c^{\\alpha + \\beta}$ (Potenzgesetz). Logarithmiert: $\\log_c(a \\cdot b) = \\alpha + \\beta = \\log_c(a) + \\log_c(b)$.',
+        'Setze $\\log a = m$ und $\\log b = n$, also $a = 10^m$ und $b = 10^n$. Dann: $a \\cdot b = 10^m \\cdot 10^n = 10^{m+n}$. Daher $\\log(a \\cdot b) = m + n = \\log a + \\log b$. Logarithmus verwandelt Multiplikation (hohe Ebene) in Addition (niedrigere Ebene).',
     },
     {
-      claim: 'LogSumExp-Trick: numerische Stabilität',
+      claim: '$-\\ln(\\hat{y}) \\to \\infty$ wenn $\\hat{y} \\to 0$',
       reasoning:
-        'Für $m = \\max_j z_j$ gilt: $\\ln\\!\\left(\\sum_j e^{z_j}\\right) = \\ln\\!\\left(e^m \\sum_j e^{z_j - m}\\right) = m + \\ln\\!\\left(\\sum_j e^{z_j - m}\\right)$. Da $z_j - m \\leq 0$ für alle $j$, sind alle Terme $e^{z_j - m} \\in (0, 1]$ — kein Overflow möglich.',
+        'Für $\\hat{y} \\in (0, 1]$ gilt $\\ln(\\hat{y}) \\leq 0$, also $-\\ln(\\hat{y}) \\geq 0$. Wenn das Modell die falsche Klasse sicher vorhersagt ($\\hat{y} \\to 0$ für die richtige Klasse), dann $\\ln(\\hat{y}) \\to -\\infty$, also $-\\ln(\\hat{y}) \\to +\\infty$. Das gibt die stärkste mögliche Strafe — genau das wollen wir von einem Loss.',
     },
   ],
 
@@ -272,37 +285,37 @@ stable = torch.logsumexp(z, dim=0)     # numerisch stabil`,
       wrong: '$\\log(a + b) = \\log a + \\log b$',
       correct: '$\\log(a \\cdot b) = \\log a + \\log b$',
       explanation:
-        'Der Logarithmus macht aus **Produkten** Summen, nicht aus Summen! $\\log(a + b)$ lässt sich nicht weiter vereinfachen.',
+        'Das Logarithmusgesetz gilt für **Produkte**, nicht für Summen. $\\log(a + b)$ lässt sich im Allgemeinen nicht vereinfachen.',
     },
     {
-      wrong: '$\\ln(0) = 0$',
-      correct: '$\\ln(0)$ ist nicht definiert ($\\to -\\infty$)',
+      wrong: '$\\ln(-5)$ ist definiert',
+      correct: '$\\ln(x)$ ist nur für $x > 0$ definiert',
       explanation:
-        'Da $e^x > 0$ für alle $x$, gibt es kein $c$ mit $e^c = 0$. In ML: wenn das Modell $\\hat{y} = 0$ für die richtige Klasse vorhersagt, wird der Cross-Entropy-Loss unendlich groß — maximale Strafe.',
+        'Da $e^x > 0$ für alle $x \\in \\mathbb{R}$, kann $\\ln(x)$ für $x \\leq 0$ keinen reellen Wert annehmen. In ML führt $\\log(0)$ zu $-\\infty$ — daher immer Clipping oder Epsilon addieren: $\\log(\\hat{y} + \\epsilon)$.',
     },
     {
-      wrong: 'In PyTorch `nn.CrossEntropyLoss` auf Softmax-Output anwenden',
-      correct: '`nn.CrossEntropyLoss` direkt auf rohe Logits anwenden',
+      wrong: '$\\log_a(b) = \\frac{a}{b}$',
+      correct: '$\\log_a(b) = c$ bedeutet $a^c = b$',
       explanation:
-        '`nn.CrossEntropyLoss` wendet intern bereits `log_softmax` an. Softmax davor anzuwenden führt zu doppelter Normalisierung und falschen Gradienten.',
+        'Logarithmus ist keine Division — er fragt nach dem Exponenten. $\\log_2(8) = 3$, weil $2^3 = 8$, nicht $2/8$.',
     },
   ],
 
   furtherResources: [
     {
-      title: 'BetterExplained: "Demystifying the Natural Logarithm (ln)"',
-      type: 'article',
-      note: 'Intuitive Einführung: Logarithmus als "Wachstumszähler"',
-    },
-    {
-      title: '3Blue1Brown: "e to the i pi" (YouTube)',
+      title: '3Blue1Brown: "What is e?" (Video)',
       type: 'video',
-      note: 'Warum $e$ und $\\ln$ so natürlich sind — visuell, 5 Minuten',
+      note: 'Intuitive Herleitung der Eulerschen Zahl und des natürlichen Logarithmus — 6 Minuten',
     },
     {
-      title: 'Serlo: "Logarithmus" — serlo.org/mathe/logarithmus',
+      title: 'BetterExplained: "Demystifying the Natural Logarithm"',
       type: 'article',
-      note: 'Deutsche Referenz mit allen Gesetzen und Übungsaufgaben',
+      note: 'Erklärt ln als "Zeit bis zum Wachstum von 1 auf x bei kontinuierlichem Wachstum"',
+    },
+    {
+      title: 'Serlo: "Logarithmusgesetze" — serlo.org',
+      type: 'article',
+      note: 'Deutsche Referenz mit allen drei Gesetzen und interaktiven Übungen',
     },
   ],
 
@@ -315,19 +328,19 @@ stable = torch.logsumexp(z, dim=0)     # numerisch stabil`,
     {
       lessonId: 'p0.exponentialfunktionen',
       relation: 'requires',
-      hint: '$\\ln$ und $e^x$ sind Umkehrfunktionen — du brauchst $e^x$ um $\\ln$ zu verstehen.',
+      hint: '$\\ln$ und $e^x$ sind Umkehrfunktionen voneinander — beide Lektionen gehören zusammen.',
     },
     {
       lessonId: 'p0.wahrscheinlichkeit',
       relation: 'extends',
-      hint: 'Log-Wahrscheinlichkeiten ($\\ln P$) vermeiden Underflow bei kleinen Wahrscheinlichkeiten.',
+      hint: 'Log-Wahrscheinlichkeiten und Cross-Entropy-Loss basieren auf Logarithmus angewandt auf Wahrscheinlichkeiten.',
     },
     {
       lessonId: 'p1.mle',
       relation: 'see-also',
-      hint: 'Maximum-Likelihood-Schätzung maximiert die Log-Likelihood — direkte Anwendung dieser Lektion.',
+      hint: 'Maximum Likelihood Estimation maximiert Log-Likelihood — exakt $\\sum_i \\ln p(x_i)$.',
     },
   ],
 
-  reflection: 'Du hast gelernt: **Logarithmus** ist nicht nur eine mathematische Kuriosität — er ist das Fundament von Cross-Entropy, numerischer Stabilität und Informationstheorie in ML. Der LogSumExp-Trick rettet jeden Softmax vor dem Overflow. Wann hast du das nächste Mal in PyTorch-Code einen `log` gesehen?',
+  reflection: 'Du hast gelernt: **Logarithmus** verwandelt Produkte in Summen — und das macht ihn zum unverzichtbaren Werkzeug für numerische Stabilität in ML. Cross-Entropy-Loss, LogSumExp und Log-Wahrscheinlichkeiten — alles basiert auf diesem einen Konzept. Wo siehst du den Logarithmus noch in deinem ML-Alltag?',
 }
