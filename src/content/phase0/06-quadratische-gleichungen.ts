@@ -162,4 +162,153 @@ export const quadratischeGleichungen: Lesson = {
       conceptTags: ['quadratic'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst quadratische Gleichungen mit der pq-Formel und durch Ausklammern lösen, die Diskriminante interpretieren und erkennst quadratische Strukturen im Huber-Loss und MSE.',
+
+  description:
+    'Quadratische Gleichungen $ax^2 + bx + c = 0$ treten in ML bei der Analyse von Loss-Funktionen auf: Der MSE-Loss ist quadratisch in den Gewichten, und sein Minimum liegt genau dort, wo die Ableitung null ist — die Lösung einer quadratischen Gleichung. Wer die pq-Formel und Diskriminante beherrscht, versteht, warum konvexe Verlustfunktionen ein eindeutiges Minimum haben.',
+
+  conceptSteps: [
+    {
+      title: 'Quadratische Gleichungen geometrisch verstehen',
+      preprompt: 'Eine Parabel $f(x) = x^2 - 5x + 6$ schneidet die x-Achse. Wie viele Schnittpunkte kann eine Parabel maximal haben — und was bestimmt das?',
+      body: 'Eine **quadratische Gleichung** $ax^2 + bx + c = 0$ fragt: Bei welchen $x$-Werten schneidet die Parabel die x-Achse?\n\n- Die Schnittpunkte heißen **Nullstellen** oder **Wurzeln**\n- Es gibt 0, 1 oder 2 reelle Lösungen\n- Das bestimmt die **Diskriminante**\n\n$$ax^2 + bx + c = 0 \\quad \\Leftrightarrow \\quad f(x) = 0$$',
+      visual: `<svg viewBox="0 0 260 100" width="260" height="100" aria-label="Parabel mit Nullstellen">
+        <rect x="0" y="0" width="260" height="100" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <line x1="10" y1="75" x2="250" y2="75" stroke="rgb(75 85 99)" stroke-width="1"/>
+        <line x1="130" y1="10" x2="130" y2="95" stroke="rgb(75 85 99)" stroke-width="1"/>
+        <path d="M 50,15 Q 130,130 210,15" stroke="rgb(99 102 241)" stroke-width="2" fill="none"/>
+        <circle cx="80" cy="75" r="4" fill="rgb(134 239 172)"/>
+        <circle cx="180" cy="75" r="4" fill="rgb(134 239 172)"/>
+        <text x="68" y="90" fill="rgb(134 239 172)" font-size="9" font-family="monospace">x₁</text>
+        <text x="168" y="90" fill="rgb(134 239 172)" font-size="9" font-family="monospace">x₂</text>
+        <text x="155" y="25" fill="rgb(99 102 241)" font-size="9" font-family="monospace">f(x)=x²-5x+6</text>
+        <text x="125" y="48" fill="rgb(251 191 36)" font-size="9" font-family="monospace">Min</text>
+      </svg>`,
+      miniExample: '$f(x) = x^2 - 5x + 6 = 0$: Nullstellen bei $x_1 = 2$ und $x_2 = 3$.',
+    },
+    {
+      title: 'Die pq-Formel',
+      body: 'Für die Normalform $x^2 + px + q = 0$ (führender Koeffizient $= 1$):\n\n$$x_{1,2} = -\\frac{p}{2} \\pm \\sqrt{\\left(\\frac{p}{2}\\right)^2 - q}$$\n\n**Merkhilfe**: "Minus $p$ halbe, plus-minus Wurzel aus $p$ halbe Quadrat minus $q$."\n\nFür allgemeines $ax^2 + bx + c = 0$ zuerst durch $a$ dividieren (sofern $a \\neq 0$).',
+      miniExample: '$x^2 - 5x + 6 = 0$: $p=-5$, $q=6$. $x_{1,2} = \\frac{5}{2} \\pm \\sqrt{\\frac{25}{4} - 6} = \\frac{5}{2} \\pm \\frac{1}{2}$. Also $x_1 = 3$, $x_2 = 2$.',
+      selfCheck: 'Welche Lösungen hat $x^2 - 4 = 0$ (hier $p=0$, $q=-4$)? ($x_{1,2} = \\pm\\sqrt{4} = \\pm 2$.)',
+    },
+    {
+      title: 'Die Diskriminante',
+      body: 'Der Ausdruck unter der Wurzel bestimmt die Anzahl der Lösungen:\n\n$$D = \\left(\\frac{p}{2}\\right)^2 - q$$\n\n| $D > 0$ | Zwei verschiedene reelle Lösungen |\n|---------|-----------------------------------|\n| $D = 0$ | Genau eine Lösung (Doppelwurzel)  |\n| $D < 0$ | Keine reelle Lösung               |\n\nBei $D < 0$ gibt es nur **komplexe** Lösungen — in ML selten relevant.',
+      miniExample: '$x^2 + 2x + 5 = 0$: $D = 1 - 5 = -4 < 0$ → keine reellen Lösungen.',
+      selfCheck: 'Wie viele Nullstellen hat $f(x) = x^2 - 6x + 9$? ($D = 9 - 9 = 0$ → eine Nullstelle (Doppelwurzel bei $x = 3$).)',
+    },
+    {
+      title: 'Quadratische Ergänzung',
+      body: 'Die **quadratische Ergänzung** formt $x^2 + px + q$ in die Scheitelpunktform um:\n\n$$x^2 + px + q = \\left(x + \\frac{p}{2}\\right)^2 - \\frac{p^2}{4} + q$$\n\n**Vorgehen**:\n1. Koeffizient vor $x$ halbieren: $\\frac{p}{2}$\n2. Quadrat ergänzen: $+\\left(\\frac{p}{2}\\right)^2$\n3. Zum Ausgleich wieder subtrahieren\n\nDieses Verfahren liefert direkt die pq-Formel.',
+      miniExample: '$x^2 - 4x + 7 = (x-2)^2 - 4 + 7 = (x-2)^2 + 3$. Minimum: $3$ bei $x=2$.',
+    },
+    {
+      title: 'ML-Anwendung: Quadratischer Loss und sein Minimum',
+      body: 'Der **MSE-Loss** als Funktion eines Gewichts $w$ ist quadratisch:\n\n$$L(w) = \\frac{1}{n}\\sum_{i=1}^n (wx_i - y_i)^2$$\n\nSein Minimum liegt bei $\\frac{dL}{dw} = 0$ — das ist eine **lineare Gleichung** in $w$ (weil $L$ quadratisch und $\\frac{dL}{dw}$ linear ist).\n\nDer **Huber-Loss** ist stückweise quadratisch:\n$$H_\\delta(r) = \\begin{cases} \\frac{1}{2}r^2 & |r| \\leq \\delta \\\\ \\delta(|r| - \\frac{\\delta}{2}) & |r| > \\delta \\end{cases}$$\n\nFür kleine Fehler ist er quadratisch (wie MSE), für große linear (robuster gegenüber Ausreißern).',
+      miniExample: '$L(w) = (w - 3)^2$: Minimum bei $w = 3$ (Scheitelpunkt der Parabel). $\\frac{dL}{dw} = 2(w-3) = 0 \\Rightarrow w = 3$.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'NumPy: Quadratische Gleichung lösen und MSE-Minimum finden',
+      lang: 'python',
+      code: `import numpy as np
+
+# Quadratische Gleichung lösen: x^2 - 5x + 6 = 0
+# Koeffizienten: [a, b, c] für ax^2 + bx + c = 0
+koeff = [1, -5, 6]
+loesungen = np.roots(koeff)
+print(loesungen)   # [3. 2.] ✓
+
+# pq-Formel manuell
+p, q = -5, 6
+D = (p/2)**2 - q   # Diskriminante
+if D > 0:
+    x1 = -p/2 + np.sqrt(D)
+    x2 = -p/2 - np.sqrt(D)
+    print(f"x1={x1}, x2={x2}")  # x1=3.0, x2=2.0
+
+# MSE-Minimum: analytisch (quadratische Ergänzung)
+# L(w) = (w-3)^2 => Minimum bei w=3
+# In der Praxis: Gradient auf null setzen: dL/dw = 2(w-3) = 0
+w_optimal = 3.0   # exakte Lösung der quadratischen Gleichung`,
+      annotation: '`np.roots([a,b,c])` löst $ax^2 + bx + c = 0$ intern mit der Quadratischen Formel. Das MSE-Minimum ist nichts anderes als die Lösung von $\\frac{dL}{dw} = 0$ — einer linearen Gleichung in $w$. Deshalb hat lineares MSE-Regression eine **geschlossene Lösung** (Normal-Gleichung), während nichtlineare Netze iterativ mit Gradient Descent optimiert werden.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Die pq-Formel folgt aus der quadratischen Ergänzung',
+      reasoning:
+        '$x^2 + px + q = 0$. Ergänze: $(x + \\frac{p}{2})^2 - \\frac{p^2}{4} + q = 0$. Umformen: $(x + \\frac{p}{2})^2 = \\frac{p^2}{4} - q$. Wurzel ziehen: $x + \\frac{p}{2} = \\pm\\sqrt{\\frac{p^2}{4} - q}$. Auflösen: $x = -\\frac{p}{2} \\pm \\sqrt{(\\frac{p}{2})^2 - q}$ — das ist die pq-Formel.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: '$x^2 - 5x + 6 = 0 \\Rightarrow x = 5$ und $x = 6$',
+      correct: '$x_1 = 2$, $x_2 = 3$ (via pq-Formel oder Ausklammern)',
+      explanation:
+        'Die Koeffizienten $p$ und $q$ sind nicht direkt die Lösungen! Die Lösungen multipliziert ergeben $q$ und addiert ergeben $-p$: $x_1 + x_2 = 5$ und $x_1 \\cdot x_2 = 6$.',
+    },
+    {
+      wrong: 'Bei $D < 0$ gibt es keine Lösungen',
+      correct: 'Bei $D < 0$ gibt es keine **reellen** Lösungen, aber zwei komplexe',
+      explanation:
+        'Komplexe Zahlen erlauben auch negative Diskriminanten. Im ML-Kontext relevant: bestimmte Aktivierungsfunktionen haben komplexe Fixpunkte.',
+    },
+    {
+      wrong: 'Die Lösungsformel für $2x^2 + 4x + 2 = 0$ direkt einsetzen',
+      correct: 'Erst durch $a = 2$ dividieren: $x^2 + 2x + 1 = 0$, dann pq-Formel',
+      explanation:
+        'Die pq-Formel gilt für Normalform (führender Koeffizient $= 1$). Zuerst durch $a$ dividieren!',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'Serlo: "Quadratische Gleichungen" — serlo.org/mathe/quadratische-gleichungen',
+      type: 'article',
+      note: 'Deutsche Referenz mit pq-Formel, Diskriminante und interaktiven Übungen',
+    },
+    {
+      title: 'Khan Academy: "The quadratic formula" (Video)',
+      type: 'video',
+      note: 'Herleitung der Lösungsformel aus quadratischer Ergänzung; 10 Minuten',
+    },
+    {
+      title: '3Blue1Brown: "Lockdown math: quadratics" (YouTube)',
+      type: 'video',
+      note: 'Geometrische Intuition der quadratischen Ergänzung',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p0.termumformungen',
+      relation: 'requires',
+      hint: 'Quadratische Ergänzung setzt Beherrschung der binomischen Formeln voraus.',
+    },
+    {
+      lessonId: 'p0.quadratische-funktionen',
+      relation: 'see-also',
+      hint: 'Nullstellen der quadratischen Funktion $f(x) = ax^2 + bx + c$ sind genau die Lösungen der quadratischen Gleichung $ax^2 + bx + c = 0$.',
+    },
+    {
+      lessonId: 'p0.erste-ableitungen',
+      relation: 'see-also',
+      hint: 'Das Minimum einer quadratischen Loss-Funktion liegt dort, wo die Ableitung null ist — das ergibt eine lineare Gleichung.',
+    },
+    {
+      lessonId: 'p1.extrema-taylor',
+      relation: 'extends',
+      hint: 'Taylor-Entwicklung nähert beliebige Funktionen durch Polynome an — die quadratische Näherung ist besonders wichtig für Optimierung.',
+    },
+  ],
+
+  reflection: 'Jedes Mal, wenn du lineares Regressionsmodell trainierst, löst der Computer im Hintergrund eine System quadratischer (und linearer) Gleichungen. Die Normal-Gleichung $(X^\\top X) w = X^\\top y$ hat eine direkte Lösung — weil $L(w)$ quadratisch ist. Warum braucht man trotzdem Gradient Descent für tiefe Netze?',
 }

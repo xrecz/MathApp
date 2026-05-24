@@ -169,4 +169,147 @@ export const ungleichungen: Lesson = {
       conceptTags: ['constraint', 'probability'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst lineare Ungleichungen und Betragsungleichungen lösen, Lösungsmengen in Intervallnotation angeben und verstehst, wie Constraints in ML-Optimierung und Gradienten-Clipping auf Ungleichungen beruhen.',
+
+  description:
+    'Ungleichungen beschreiben Wertebereiche und Einschränkungen: Lernraten müssen positiv sein ($\\eta > 0$), Wahrscheinlichkeiten liegen in $[0,1]$, und Gradienten-Clipping begrenzt Gradienten auf $|g| \\leq c$. In der ML-Optimierung formuliert man Nebenbedingungen als Ungleichungen — das Fundament der konstrained Optimierung.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist eine Ungleichung?',
+      preprompt: 'Du bestellst Pizza und hast maximal 15 Euro. Eine Pizza kostet $3x + 2$ Euro. Für welche Anzahl $x$ reicht dein Geld noch?',
+      body: 'Eine **Ungleichung** beschreibt eine Beziehung zwischen Größen, die nicht gleich, sondern **kleiner oder größer** ist:\n\n$$<, \\;\\leq, \\;>, \\;\\geq$$\n\nIm Gegensatz zu Gleichungen ($=$ hat einzelne Lösung) haben Ungleichungen oft **Lösungsmengen** — Intervalle oder Bereiche.\n\n**Intervallnotation**:\n- $[a, b]$: $a \\leq x \\leq b$ (beide Grenzen inklusive)\n- $(a, b)$: $a < x < b$ (beide exklusiv)\n- $[a, \\infty)$: $x \\geq a$',
+      miniExample: '$x > 3$: alle $x$ rechts von $3$ — Lösungsmenge $(3, \\infty)$.',
+      selfCheck: 'Was ist der Unterschied zwischen $x > 2$ und $x \\geq 2$? (Ersteres schließt $2$ aus, letzteres schließt $2$ ein.)',
+    },
+    {
+      title: 'Lineare Ungleichungen lösen',
+      body: 'Lineare Ungleichungen löst man **wie eine lineare Gleichung**, mit einer wichtigen Ausnahme:\n\n$$\\boxed{\\text{Division/Multiplikation mit } < 0 \\text{ dreht das Zeichen um!}}$$\n\n**Vorgehen**:\n1. Terme zusammenfassen\n2. Variable isolieren\n3. Bei negativem Faktor: Zeichen umdrehen\n\n$$-2x \\leq 6 \\quad \\xrightarrow{\\div(-2)} \\quad x \\geq -3$$',
+      miniExample: '$3x + 1 < 10 \\Rightarrow 3x < 9 \\Rightarrow x < 3$. Lösungsmenge: $(-\\infty, 3)$.',
+      selfCheck: 'Löse $-x > 5$. (Division durch $-1$, Zeichen dreht: $x < -5$.)',
+    },
+    {
+      title: 'Betragsungleichungen',
+      body: 'Der **Betrag** $|x|$ gibt den Abstand von null — immer $\\geq 0$.\n\n$$|x| < c \\quad \\Leftrightarrow \\quad -c < x < c \\quad (c > 0)$$\n\n$$|x| > c \\quad \\Leftrightarrow \\quad x < -c \\text{ oder } x > c$$\n\nMerkhilfe: "$|x| < c$" bedeutet "innerhalb von $c$" (ein Intervall); "$|x| > c$" bedeutet "außerhalb von $c$" (zwei Bereiche).',
+      miniExample: '$|x - 3| \\leq 2 \\Rightarrow -2 \\leq x - 3 \\leq 2 \\Rightarrow 1 \\leq x \\leq 5$. Lösungsmenge: $[1, 5]$.',
+      selfCheck: 'Was bedeutet $|w| \\leq 5$ für ein Gewicht $w$? (Das Gewicht darf maximal $\\pm 5$ betragen — Gradienten-Clipping!)',
+    },
+    {
+      title: 'Schnitt- und Vereinigungsmengen von Lösungen',
+      body: '**Und-Verknüpfung** (beide Bedingungen gleichzeitig): Schnittmenge $\\cap$\n\n$$x > 1 \\text{ und } x < 5 \\quad \\Leftrightarrow \\quad x \\in (1, 5)$$\n\n**Oder-Verknüpfung** (mindestens eine Bedingung): Vereinigung $\\cup$\n\n$$x < -2 \\text{ oder } x > 3 \\quad \\Leftrightarrow \\quad x \\in (-\\infty, -2) \\cup (3, \\infty)$$',
+      miniExample: 'Wahrscheinlichkeit $p$: $p \\geq 0$ und $p \\leq 1$ — Schnittmenge: $p \\in [0, 1]$.',
+    },
+    {
+      title: 'ML-Anwendung: Constraints und Gradienten-Clipping',
+      body: '**Constraints** in der ML-Optimierung:\n\n$$\\min_w L(w) \\quad \\text{s.t.} \\quad \\|w\\|_2 \\leq C$$\n\nDas "s.t." (subject to) bedeutet: minimiere $L(w)$, aber halte die Ungleichung ein.\n\n**Gradienten-Clipping**: Begrenzt den Gradienten bei sehr großen Werten:\n\n$$g \\leftarrow g \\cdot \\min\\!\\left(1, \\frac{c}{\\|g\\|}\\right) \\quad \\text{sodass } \\|g\\| \\leq c$$\n\nOhne Clipping können Gradienten explodieren — die Ungleichung $\\|g\\| \\leq c$ verhindert das.\n\n**Lernrate**: $0 < \\eta < \\frac{2}{\\lambda_{\\max}}$ (Stabilitätsbedingung für Gradient Descent).',
+      miniExample: 'Gradient $g = 10$, Clipping bei $c = 1$: $g \\leftarrow 10 \\cdot \\min(1, \\frac{1}{10}) = 10 \\cdot 0{,}1 = 1$.',
+      selfCheck: 'Warum ist $\\eta > 0$ notwendig, aber nicht $\\eta \\geq 0$? (Bei $\\eta = 0$ gibt es kein Update — kein Lernen.)',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'PyTorch: Gradienten-Clipping und Constraint-Prüfungen',
+      lang: 'python',
+      code: `import torch
+import torch.nn as nn
+
+# Modell mit großen Gradienten (z.B. durch exploding gradients)
+model = nn.Linear(10, 1)
+x = torch.randn(5, 10)
+y = torch.randn(5, 1)
+loss = ((model(x) - y) ** 2).mean()
+loss.backward()
+
+# Gradienten-Clipping: ||g|| <= max_norm
+# Ungleichung: skaliere g so, dass ||g|| <= 1.0
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+# Danach: ||grad|| <= 1.0 (Ungleichung erfüllt)
+
+# Constraint-Prüfungen als Ungleichungen
+eta = 0.01
+assert eta > 0, "Lernrate muss positiv sein"  # eta > 0
+
+p_softmax = torch.softmax(torch.randn(5), dim=0)
+# Prüfe: alle Wahrscheinlichkeiten in [0, 1]
+assert (p_softmax >= 0).all() and (p_softmax <= 1).all()
+# Prüfe: Summe = 1
+assert torch.isclose(p_softmax.sum(), torch.tensor(1.0))`,
+      annotation: '`clip_grad_norm_` implementiert $\\|g\\| \\leq c$ — eine Betragsungleichung für Vektoren. `assert eta > 0` ist buchstäblich die Ungleichung $\\eta > 0$ als Code. Die Softmax-Prüfung bestätigt $p \\in [0, 1]$ für jede Ausgabe — Wahrscheinlichkeiten als Ungleichungen.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Warum dreht sich das Zeichen bei Division durch eine negative Zahl?',
+      reasoning:
+        'Sei $a < b$. Dann gilt $-a > -b$ (auf der Zahlengeraden: $a$ liegt links von $b$, also liegt $-a$ rechts von $-b$). Allgemein: Multiplizieren mit $-1$ spiegelt die Zahlengeraden an $0$, was die Reihenfolge umkehrt. Formal: $a < b \\Rightarrow a - b < 0 \\Rightarrow -(b - a) < 0$, und beim Dividieren durch $c < 0$: $\\frac{a}{c} > \\frac{b}{c}$ (beide Seiten werden negiert und die Ordnung kehrt sich um).',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: '$-2x \\leq 6 \\Rightarrow x \\leq -3$',
+      correct: '$-2x \\leq 6 \\Rightarrow x \\geq -3$ (Zeichen dreht sich!)',
+      explanation:
+        'Division durch $-2$ dreht das Ungleichungszeichen um. Das wird am häufigsten vergessen!',
+    },
+    {
+      wrong: '$|x| < 5 \\Rightarrow x < 5$',
+      correct: '$|x| < 5 \\Rightarrow -5 < x < 5$',
+      explanation:
+        'Betragsungleichung bedeutet Abstand von null kleiner als $5$ — das ist ein beidseitiges Intervall!',
+    },
+    {
+      wrong: '$(1, 5)$ bedeutet der Punkt $(1, 5)$',
+      correct: '$(1, 5)$ als Intervall bedeutet $1 < x < 5$',
+      explanation:
+        'Kontext entscheidet: In der Mengenlehre ist $(1, 5)$ das offene Intervall. Als Koordinatenpaar ist $(1, 5)$ ein Punkt. Im Kontext von Ungleichungen immer Intervall.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'Serlo: "Ungleichungen" — serlo.org/mathe/ungleichungen',
+      type: 'article',
+      note: 'Deutsche Referenz mit Lösungsverfahren und Intervallnotation',
+    },
+    {
+      title: 'Khan Academy: "Solving inequalities" (Video-Serie)',
+      type: 'video',
+      note: 'Schritt-für-Schritt mit der Vorzeichenregel; Betragsungleichungen',
+    },
+    {
+      title: 'Goodfellow et al.: Deep Learning, Kap. 4 "Numerical Computation"',
+      type: 'article',
+      note: 'Erklärt Gradienten-Clipping und numerische Stabilitätsbedingungen als Ungleichungen',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p0.lineare-funktionen',
+      relation: 'requires',
+      hint: 'Lineare Ungleichungen werden genau wie lineare Gleichungen umgeformt — plus die Vorzeichenregel.',
+    },
+    {
+      lessonId: 'p0.wahrscheinlichkeit',
+      relation: 'see-also',
+      hint: 'Wahrscheinlichkeiten erfüllen $p \\in [0, 1]$ — die wichtigste Ungleichung in der Stochastik.',
+    },
+    {
+      lessonId: 'p1.map-regularisierung-bias-variance',
+      relation: 'extends',
+      hint: 'L1- und L2-Regularisierung formulieren das Optimierungsproblem als constrained Minimierung — gebaut auf Ungleichungen.',
+    },
+    {
+      lessonId: 'p0.betraege',
+      relation: 'see-also',
+      hint: 'Beträge und Betragsungleichungen gehen Hand in Hand.',
+    },
+  ],
+
+  reflection: 'Ungleichungen sind die "Grenzen" des maschinellen Lernens — buchstäblich. Jede Lernrate hat eine obere Stabilitätsgrenze, jedes Gewicht kann geclippt werden, jede Wahrscheinlichkeit liegt in $[0, 1]$. Wenn Gradienten explodieren (loss = NaN), ist oft eine Ungleichung verletzt. Welche Ungleichung hält ein stabiles Training am Laufen?',
 }
