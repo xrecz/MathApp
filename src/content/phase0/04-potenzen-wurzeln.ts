@@ -160,4 +160,59 @@ export const potenzenWurzeln: Lesson = {
       conceptTags: ['norm'],
     },
   ],
+
+  description:
+    'Du lernst die fünf Potenzgesetze sowie negative und gebrochene Exponenten kennen — und vor allem *warum* sie gelten. Das ist das Fundament für L2-Norm, Weight Decay und MSE-Loss in jedem ML-Modell.',
+
+  derivations: [
+    {
+      claim: '$a^0 = 1$ gilt für alle $a \\neq 0$',
+      reasoning:
+        'Schau auf das absteigende Muster: $a^3 \\to a^2 \\to a^1$ — jeder Schritt dividiert durch $a$. Der nächste Schritt: $a^1 \\div a = a/a = 1$. Algebraisch: $\\frac{a^n}{a^n} = 1$ (Bruch kürzen) und gleichzeitig $\\frac{a^n}{a^n} = a^{n-n} = a^0$ (Potenzgesetz). Beides muss gleich sein → $a^0 = 1$.',
+    },
+    {
+      claim: '$a^{1/n} = \\sqrt[n]{a}$ für $a \\geq 0$',
+      reasoning:
+        'Wende das Potenz-von-Potenz-Gesetz an: $(a^{1/n})^n = a^{\\frac{1}{n} \\cdot n} = a^1 = a$. Die Zahl, die $n$-mal mit sich selbst multipliziert $a$ ergibt, ist per Definition $\\sqrt[n]{a}$. Also muss $a^{1/n} = \\sqrt[n]{a}$ sein.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: '$a^3 \\cdot a^4 = a^{12}$',
+      correct: '$a^3 \\cdot a^4 = a^7$',
+      explanation:
+        'Bei Multiplikation gleicher Basen werden Exponenten **addiert** ($3+4=7$), nicht multipliziert. Multiplizieren gilt nur beim Potenz-von-Potenz-Gesetz: $(a^3)^4 = a^{12}$.',
+    },
+    {
+      wrong: '$(a + b)^2 = a^2 + b^2$',
+      correct: '$(a + b)^2 = a^2 + 2ab + b^2$',
+      explanation:
+        'Potenzen verteilen sich **nicht** über Addition! Das ist eine der häufigsten Fehlerquellen — auch im ML, z.B. beim Ausmultiplizieren von Termen im Gradientenabstieg.',
+    },
+    {
+      wrong: '$(a^3)^4 = a^{3+4} = a^7$',
+      correct: '$(a^3)^4 = a^{3 \\cdot 4} = a^{12}$',
+      explanation:
+        'Potenz-von-Potenz: Exponenten **multiplizieren** ($3 \\times 4 = 12$). Verwechslung mit dem Produkt-Gesetz ($a^m \\cdot a^n = a^{m+n}$) ist sehr häufig.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'BetterExplained: "Understanding Exponents (Why does 0^0 = 1?)"',
+      type: 'article',
+      note: 'Das "Expand-o-tron"-Modell macht Null- und Bruch-Exponenten wirklich intuitiv',
+    },
+    {
+      title: 'Khan Academy: "The zeroth power" (Video)',
+      type: 'video',
+      note: 'Visuelles Abstiegs-Pattern; 3 Minuten',
+    },
+    {
+      title: 'Serlo: "Potenzgesetze" — serlo.org/mathe/1867/potenzgesetze',
+      type: 'article',
+      note: 'Deutsche Referenz mit allen Regeln und Übungsaufgaben',
+    },
+  ],
 }

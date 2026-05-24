@@ -156,6 +156,12 @@ function renderIntro(
 
         ${prereqHtml}
 
+        ${lesson.description ? `
+        <section class="px-4 py-3 border-t border-surface-700">
+          <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Was dich erwartet</h2>
+          <p class="text-sm text-gray-300 leading-relaxed">${lesson.description}</p>
+        </section>` : ''}
+
         <section class="px-4 py-3 border-t border-surface-700">
           <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Themen</h2>
           <div class="flex flex-wrap gap-2">

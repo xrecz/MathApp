@@ -187,4 +187,59 @@ export const eigenwerteEigenvektoren: Lesson = {
       conceptTags: ['eigenvalue'],
     },
   ],
+
+  description:
+    'Eigenvektoren sind die "unveränderlichen Richtungen" einer linearen Abbildung — sie werden nur gestreckt oder gestaucht, nie gekippt. Das ist das Fundament für PCA, spektrales Clustering und die Konvergenzanalyse von Gradient Descent.',
+
+  derivations: [
+    {
+      claim: 'Warum gilt $\\det(A - \\lambda I) = 0$ für Eigenwerte?',
+      reasoning:
+        'Gesucht: ein Vektor $v \\neq \\vec{0}$ mit $(A - \\lambda I)v = 0$. Das heißt, die Matrix $(A - \\lambda I)$ bildet $v$ auf den Nullvektor ab — sie "kollabiert" den Raum. Eine Matrix kollabiert Raum genau dann, wenn ihr Determinante null ist (sie verliert eine Dimension, mehrere Vektoren landen auf demselben Punkt). Also: $\\det(A - \\lambda I) = 0$ ist genau die Bedingung, dass ein nicht-trivialer Nullraum existiert — und damit ein Eigenvektor.',
+    },
+    {
+      claim: 'PCA: Warum sind Eigenvektoren der Kovarianzmatrix die Hauptkomponenten?',
+      reasoning:
+        'Gesucht: Einheitsvektor $w$, der die projizierte Varianz $w^\\top \\Sigma w$ maximiert. Mit der Lagrange-Methode ($\\|w\\|=1$ als Nebenbedingung) ergibt sich $\\Sigma w = \\lambda w$ — das ist exakt die Eigenvektor-Gleichung. Der Lagrange-Multiplikator ist der Eigenwert $\\lambda$, und $w^\\top \\Sigma w = \\lambda$. Größter Eigenwert → größte Varianz → erste Hauptkomponente.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Eigenvektoren sind immer die Standardbasisvektoren $e_1, e_2, \\ldots$',
+      correct: 'Eigenvektoren sind nur bei Diagonalmatrizen die Standardbasisvektoren',
+      explanation:
+        'Für eine allgemeine Matrix zeigen die Eigenvektoren in ganz andere Richtungen — das sind die "natürlichen Richtungen" dieser speziellen Abbildung, nicht die Koordinatenachsen.',
+    },
+    {
+      wrong: 'Geometrische Vielfachheit = algebraische Vielfachheit (immer)',
+      correct: 'Geometrische Vielfachheit $\\leq$ algebraische Vielfachheit',
+      explanation:
+        'Wenn geometrisch < algebraisch, ist die Matrix **nicht diagonalisierbar** — es gibt nicht genug linear unabhängige Eigenvektoren. Für PCA und symmetrische Matrizen (Kovarianz) ist das kein Problem, aber wichtig zu wissen.',
+    },
+    {
+      wrong: 'Eigenwerte reeller Matrizen sind immer reell',
+      correct: 'Eigenwerte können komplex sein (z.B. bei Rotationsmatrizen)',
+      explanation:
+        'Nur für **symmetrische** Matrizen (wie Kovarianzmatrizen) sind alle Eigenwerte garantiert reell. Das ist ein Satz (Spektralsatz) — deshalb ist PCA mathematisch sauber.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: "Eigenvectors and eigenvalues" (Essence of Linear Algebra, Ep. 14)',
+      type: 'video',
+      note: 'Beste geometrische Visualisierung; det = Volumen-Stauchung-Argument unvergesslich',
+    },
+    {
+      title: 'MML Book (Deisenroth et al.), Kapitel 4: "Matrix Decompositions" — mml-book.github.io',
+      type: 'book',
+      note: 'Rigoroses ML-Mathe, kostenloser PDF; Kapitel 10 verbindet Eigenwerte mit PCA',
+    },
+    {
+      title: '3Blue1Brown: "A quick trick for computing eigenvalues" (Ep. 15)',
+      type: 'video',
+      note: 'Kurzer Trick via Spur + Determinante für 2×2-Matrizen — nützlich für Hessian-Analyse',
+    },
+  ],
 }
