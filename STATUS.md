@@ -126,13 +126,44 @@
 
 ---
 
-## Phase F — Gestartet am 2026-05-24
+## Phase F — Abgeschlossen am 2026-05-24
 
 | Sub-Phase | Status | Beschreibung |
 |-----------|--------|--------------|
 | F0 | ✅ | Voraussetzungs-Check, Stochastik-Verzeichnis, STATUS.md |
-| F1 | ⬜ | Zufallsvariablen, PMF/PDF/CDF |
-| F2 | ⬜ | Diskrete & Kontinuierliche Verteilungen |
-| F3 | ⬜ | Erwartungswert & Varianz, Kovarianz & Multivariate Gauß |
-| F4 | ⬜ | Bedingte Wahrscheinlichkeit, Bayes-Theorem |
-| F5 | ⬜ | MLE (= Cross-Entropy), MAP & Regularisierung & Bias-Varianz |
+| F1 | ✅ | Zufallsvariablen, PMF/PDF/CDF |
+| F2 | ✅ | Diskrete & Kontinuierliche Verteilungen |
+| F3 | ✅ | Erwartungswert & Varianz, Kovarianz & Multivariate Gauß |
+| F4 | ✅ | Bedingte Wahrscheinlichkeit, Bayes-Theorem |
+| F5 | ✅ | MLE (= Cross-Entropy), MAP & Regularisierung & Bias-Varianz |
+
+### Phase-F-Ergebnisse
+
+- **Lektionen**: 10 neu (Stochastik), 50 gesamt
+- **Aufgaben**: 60 neue Übungsaufgaben (5–6 pro Lektion)
+- **Review-Cards**: 30 neu (3 pro Lektion)
+- **Tests**: 124/124 grün
+- **Build**: ✅ sauber, strict mode
+- **Bundle**: Initial-Chunk 27.30 KB gzip ✅ (Ziel: <50 KB), Phase-1-Chunk 70.11 KB gzip ✅ (Ziel: <70 KB)
+- **ML-Verbindungen** (je Lektion):
+  - Zufallsvariablen → Dropout-Masken, Sprachmodell $p_\\theta(y\\mid x)$
+  - PMF/PDF/CDF → Gauß-MLE = MSE, `torch.distributions`
+  - Diskrete Verteilungen → Cross-Entropy = NLL des kategorischen Modells
+  - Kontinuierliche Verteilungen → Xavier-Init, Batch Normalization, Gauß-Prior
+  - Erwartungswert & Varianz → Gradient-Varianz, Adam, Bias-Varianz-Dekomposition
+  - Kovarianz & Multivariate Gauß → PCA, Mahalanobis, Gauss-Prozesse
+  - Bedingte Wahrscheinlichkeit → Kettenregel, autoregressive LLMs, Naive Bayes
+  - Bayes-Theorem → Prior/Posterior, MAP, Bayesianische Netze
+  - MLE → Cross-Entropy ≡ NLL kategorisch, MSE ≡ NLL Gauß, MAE ≡ NLL Laplace
+  - MAP & Regularisierung → L2 = Gauß-Prior, L1 = Laplace-Prior, Bias-Varianz-Trade-off
+
+---
+
+## Phase 1 — ABGESCHLOSSEN am 2026-05-24
+
+- **Gesamtlektionen Phase 1**: 32 (12 LinAlg + 10 Calculus + 10 Stochastik)
+- **Gesamtlektionen alle Phasen**: 50 (18 Phase-0 + 32 Phase-1)
+- **Gesamtaufgaben**: ~300 Übungsaufgaben
+- **Gesamte Review-Cards**: 150
+- **Tests**: 124/124 grün
+- **Build**: ✅ Initial-Bundle 27.30 KB gzip
