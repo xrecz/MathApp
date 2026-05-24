@@ -195,4 +195,157 @@ export const matrizenLineareAbbildungen: Lesson = {
       conceptTags: ['rotation'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst erklären, warum Matrizen und lineare Abbildungen dasselbe sind, Matrizen aus Abbildungsvorschriften aufbauen (Spalten = Basisbilder), Transposition anwenden und die Rolle von Gewichtsmatrizen in neuronalen Netzen beschreiben.',
+
+  description:
+    'Das zentrale Aha-Erlebnis: Eine $m \\times n$-Matrix IST eine lineare Abbildung $\\mathbb{R}^n \\to \\mathbb{R}^m$ — und jede lineare Abbildung lässt sich als Matrix schreiben. Die Spalten der Matrix sind genau die Bilder der Basisvektoren. Dieses Verständnis ist der Schlüssel zu Dense-Layern, Attention-Projektionen und Backpropagation.',
+
+  conceptSteps: [
+    {
+      title: 'Was ist eine lineare Abbildung?',
+      preprompt: 'Welche Transformationen (Streckung, Rotation, Scherung) behalten gerade Linien und den Ursprung?',
+      body: 'Eine Funktion $T: \\mathbb{R}^n \\to \\mathbb{R}^m$ ist **linear**, wenn sie Addition und Skalarmultiplikation erhält:\n\n$$T(c_1 \\mathbf{v} + c_2 \\mathbf{w}) = c_1 T(\\mathbf{v}) + c_2 T(\\mathbf{w})$$\n\n**Konsequenz**: $T(\\vec{0}) = \\vec{0}$ immer. Geraden bleiben Geraden. Parallelogramme bleiben Parallelogramme.\n\nBeispiele: Rotation, Spiegelung, Streckung, Projektion — alles lineare Abbildungen.',
+      visual: `<svg viewBox="-10 -10 220 110" width="300" height="140" aria-label="Lineare Abbildung: Einheitsquadrat zu Parallelogramm">
+        <rect x="-10" y="-10" width="220" height="110" rx="8" fill="rgb(17 24 39)" stroke="rgb(55 65 81)" stroke-width="1"/>
+        <rect x="5" y="15" width="35" height="35" fill="none" stroke="rgb(75 85 99)" stroke-width="1" stroke-dasharray="3"/>
+        <defs>
+          <marker id="a1" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0L5,2.5L0,5Z" fill="rgb(248 113 113)"/></marker>
+          <marker id="a2" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0L5,2.5L0,5Z" fill="rgb(74 222 128)"/></marker>
+        </defs>
+        <line x1="5" y1="50" x2="40" y2="50" stroke="rgb(248 113 113)" stroke-width="2" marker-end="url(#a1)"/>
+        <line x1="5" y1="50" x2="5" y2="15" stroke="rgb(74 222 128)" stroke-width="2" marker-end="url(#a2)"/>
+        <text x="42" y="42" fill="rgb(156 163 175)" font-size="13">→</text>
+        <polygon points="60,80 100,80 120,30 80,30" fill="none" stroke="rgb(99 102 241)" stroke-width="1.5"/>
+        <line x1="60" y1="80" x2="100" y2="80" stroke="rgb(248 113 113)" stroke-width="2"/>
+        <line x1="60" y1="80" x2="80" y2="30" stroke="rgb(74 222 128)" stroke-width="2"/>
+        <text x="125" y="45" fill="rgb(248 113 113)" font-size="8">Spalte 1 = A·e₁</text>
+        <text x="125" y="60" fill="rgb(74 222 128)" font-size="8">Spalte 2 = A·e₂</text>
+        <text x="125" y="75" fill="rgb(99 102 241)" font-size="8">Parallelogramm</text>
+      </svg>`,
+    },
+    {
+      title: 'Matrizen: Notation und Aufbau',
+      body: 'Eine $m \\times n$-Matrix $A$ hat $m$ Zeilen und $n$ Spalten:\n\n$$A = \\begin{pmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ a_{21} & a_{22} & \\cdots & a_{2n} \\\\ \\vdots & & \\ddots & \\vdots \\\\ a_{m1} & a_{m2} & \\cdots & a_{mn}\\end{pmatrix}$$\n\n**Schlüsselformel**: Anwendung auf Vektor $\\mathbf{x} \\in \\mathbb{R}^n$:\n\n$$(A\\mathbf{x})_i = \\sum_{j=1}^n a_{ij} x_j \\qquad \\Rightarrow \\qquad A\\mathbf{x} \\in \\mathbb{R}^m$$',
+      miniExample: '$A = \\begin{pmatrix}2 & 0 \\\\ 0 & 3\\end{pmatrix}$, $\\mathbf{x} = (1,1)^T$: $A\\mathbf{x} = (2, 3)^T$ — streckt $x$-Koordinate um 2, $y$ um 3.',
+    },
+    {
+      title: 'Spalten = Basisbilder (das zentrale Insight)',
+      body: 'Der wichtigste Satz: Die **Spalten von $A$** sind genau die Bilder der Standardbasisvektoren:\n\n$$A \\cdot e_j = j\\text{-te Spalte von } A$$\n\nWarum? $A e_j$ selektiert die $j$-te Spalte (da $e_j$ überall 0 außer an Position $j$).\n\n**Konsequenz**: Um eine lineare Abbildung $T$ als Matrix aufzuschreiben, berechne $T(e_1), T(e_2), \\dots$ und setze als Spalten ein.',
+      selfCheck: 'Wie lautet die Matrix der Spiegelung an der $x$-Achse? (Hinweis: $e_1 \\to e_1$, $e_2 \\to -e_2$)',
+    },
+    {
+      title: 'Addition, Skalarmultiplikation und Transposition',
+      body: '**Matrixaddition** (gleiche Dimensionen): komponentenweise.\n\n**Transposition**: Zeilen und Spalten tauschen:\n\n$$(A^T)_{ij} = A_{ji} \\qquad A \\in \\mathbb{R}^{m \\times n} \\Rightarrow A^T \\in \\mathbb{R}^{n \\times m}$$\n\nWichtige Regel: $(AB)^T = B^T A^T$ — Reihenfolge umkehren!\n\nEine **symmetrische Matrix** erfüllt $A = A^T$.',
+    },
+    {
+      title: 'Identitätsmatrix und Skalierungsmatrizen',
+      body: 'Die **Identitätsmatrix** $I_n$ ist das neutrale Element: $I_n \\mathbf{x} = \\mathbf{x}$.\n\n$$I_n = \\begin{pmatrix}1 & 0 & \\cdots \\\\ 0 & 1 & \\\\ \\vdots & & \\ddots\\end{pmatrix}$$\n\nEine **Diagonalmatrix** $D = \\text{diag}(d_1, \\dots, d_n)$ skaliert jede Koordinate unabhängig:\n\n$$D\\mathbf{x} = (d_1 x_1, d_2 x_2, \\dots, d_n x_n)^T$$',
+    },
+    {
+      title: 'ML: $Wx + b$ als lineare Abbildung plus Bias',
+      body: 'Ein **Dense-Layer** in einem neuronalen Netz:\n\n$$\\mathbf{y} = W\\mathbf{x} + \\mathbf{b} \\qquad W \\in \\mathbb{R}^{m \\times n}, \\quad \\mathbf{b} \\in \\mathbb{R}^m$$\n\n- $W$ ist die **Gewichtsmatrix** — eine lineare Abbildung $\\mathbb{R}^n \\to \\mathbb{R}^m$\n- $\\mathbf{b}$ ist der **Bias-Vektor** — macht es affin (nicht mehr durch Ursprung)\n\nIn einem Transformer: $W_Q \\in \\mathbb{R}^{64 \\times 768}$ projiziert 768D-Embeddings auf 64D-Queries.',
+      miniExample: 'BERT Dense-Layer: $W \\in \\mathbb{R}^{3072 \\times 768}$ — projiziert Embeddings auf 4× größeres "Feed-Forward"-Netz.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'PyTorch: Matrizen als lineare Abbildungen',
+      lang: 'python',
+      code: `import torch
+import torch.nn as nn
+
+# Matrix als lineare Abbildung R^3 -> R^2
+A = torch.tensor([[2.0, 0.0, 1.0],
+                  [0.0, 3.0, -1.0]])  # 2x3-Matrix
+
+x = torch.tensor([1.0, 1.0, 1.0])    # Vektor in R^3
+y = A @ x                              # y = A·x ∈ R^2 = [3.0, 2.0]
+
+# Transposition: (2×3) → (3×2)
+A_T = A.T        # oder A.transpose(0, 1)
+# Probe: A @ A.T ist symmetrisch (2x2)
+C = A @ A.T      # [[5, -1], [-1, 10]] — symmetrisch!
+
+# Dense Layer in PyTorch: y = W·x + b
+# W ∈ R^{256×768}, b ∈ R^{256}
+linear = nn.Linear(in_features=768, out_features=256)
+token = torch.randn(768)              # ein Token-Embedding
+output = linear(token)                # output ∈ R^{256}
+print(f"W.shape: {linear.weight.shape}")   # torch.Size([256, 768])
+print(f"b.shape: {linear.bias.shape}")     # torch.Size([256])
+
+# Spalten = Basisbilder
+e1 = torch.eye(3)[0]    # Standardbasisvektor e_1
+col1_via_product = A @ e1  # = erste Spalte von A = [2.0, 0.0]
+col1_direct = A[:, 0]      # = [2.0, 0.0] ✓`,
+      annotation: 'Der `@`-Operator ist Matrix-Vektor-Multiplikation: `A @ x` berechnet $A\\mathbf{x}$. `nn.Linear(in, out)` erstellt eine $\\text{out} \\times \\text{in}$-Matrix plus Bias — Achtung: PyTorch speichert $W^T$ intern, wendet aber korrekt $Wx + b$ an. `A @ A.T` ist immer symmetrisch: $(AA^T)^T = (A^T)^T A^T = AA^T$.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Jede lineare Abbildung $T: \\mathbb{R}^n \\to \\mathbb{R}^m$ ist durch ihre Werte auf der Standardbasis eindeutig bestimmt',
+      reasoning:
+        'Sei $\\mathbf{x} = \\sum_{j=1}^n x_j e_j$ (jeder Vektor ist Linearkombination der Basisvektoren). Dann $T(\\mathbf{x}) = T(\\sum_j x_j e_j) = \\sum_j x_j T(e_j)$ (Linearität). Also ist $T(\\mathbf{x})$ vollständig durch $T(e_1), \\dots, T(e_n)$ bestimmt. Setzt man $T(e_j)$ als $j$-te Spalte einer Matrix $A$, gilt $A\\mathbf{x} = T(\\mathbf{x})$ für alle $\\mathbf{x}$.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Eine $m \\times n$-Matrix bildet $\\mathbb{R}^m$ auf $\\mathbb{R}^n$ ab',
+      correct: 'Eine $m \\times n$-Matrix bildet $\\mathbb{R}^n$ auf $\\mathbb{R}^m$ ab',
+      explanation: 'Die Anzahl der Spalten bestimmt den Input-Raum ($n$), die Anzahl der Zeilen den Output-Raum ($m$). Merkhilfe: $A \\in \\mathbb{R}^{m \\times n}$, $\\mathbf{x} \\in \\mathbb{R}^n$, $A\\mathbf{x} \\in \\mathbb{R}^m$.',
+    },
+    {
+      wrong: 'Lineare Abbildungen können den Ursprung verschieben',
+      correct: 'Lineare Abbildungen bilden immer $\\vec{0}$ auf $\\vec{0}$ ab',
+      explanation: 'Linearität: $T(\\vec{0}) = T(0 \\cdot \\vec{0}) = 0 \\cdot T(\\vec{0}) = \\vec{0}$. Dense-Layer mit Bias ($Wx + b$) ist **affin**, nicht linear — der Bias verschieb das Bild, durchbricht aber die Linearität.',
+    },
+    {
+      wrong: 'Die Transponierte einer $(3 \\times 2)$-Matrix ist wieder $(3 \\times 2)$',
+      correct: 'Die Transponierte einer $(3 \\times 2)$-Matrix ist $(2 \\times 3)$',
+      explanation: 'Transponieren tauscht Zeilen und Spalten: $(A^T)_{ij} = A_{ji}$. Aus einer $(m \\times n)$-Matrix wird eine $(n \\times m)$-Matrix.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: "Linear transformations and matrices" (Essence of Linear Algebra, Ep. 3)',
+      type: 'video',
+      note: 'DAS Video zu Spalten als Basisbilder — animiert und unvergesslich',
+    },
+    {
+      title: 'MML Book, Kapitel 2.2: "Matrices"',
+      type: 'book',
+      note: 'Rigoros; besonders Abschnitt zu linearen Abbildungen und deren Matrixdarstellung',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.vektoren-formal',
+      relation: 'requires',
+      hint: 'Vektoren in $\\mathbb{R}^n$ sind die Ein- und Ausgaben der linearen Abbildungen.',
+    },
+    {
+      lessonId: 'p1.matrix-multiplikation',
+      relation: 'extends',
+      hint: 'Matrix-Multiplikation ist die Komposition zweier linearer Abbildungen — direkte Fortsetzung.',
+    },
+    {
+      lessonId: 'p1.inverse-transponierte',
+      relation: 'extends',
+      hint: 'Inverse und Transponierte sind zentrale Operationen auf Matrizen/Abbildungen.',
+    },
+    {
+      lessonId: 'p1.eigenwerte-eigenvektoren',
+      relation: 'see-also',
+      hint: 'Eigenvektoren sind die Richtungen, die eine lineare Abbildung nur streckt — die "natürlichen Achsen".',
+    },
+  ],
+
+  reflection: 'Matrizen sind nicht nur Zahlentabellen — sie sind Transformationen. Jeder Dense-Layer, jede Attention-Projektion ist eine lineare Abbildung. Die Spalten verraten alles: wohin die Basisvektoren wandern. **Was überrascht dich an dem Zusammenhang "Spalten = Basisbilder"?**',
 }

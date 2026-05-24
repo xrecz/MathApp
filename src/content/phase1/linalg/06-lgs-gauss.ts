@@ -178,4 +178,153 @@ export const lgsGauss: Lesson = {
       conceptTags: ['linear-system'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst lineare Gleichungssysteme geometrisch interpretieren, Gauß-Elimination schrittweise durchführen, die drei Lösungstypen (0, 1, ∞) anhand des Rangs bestimmen und die Verbindung zu linearer Regression und Least-Squares erklären.',
+
+  description:
+    'Lineare Gleichungssysteme $Ax = b$ sind das zentrale Berechnungsproblem der Linearen Algebra. Gauß-Elimination ist der systematische Lösungsweg — zugleich die Grundlage für LU-Zerlegung, die in Computern für lineare Algebra verwendet wird. Die Normalengleichung der linearen Regression ist ein LGS.',
+
+  conceptSteps: [
+    {
+      title: 'LGS geometrisch: Schnitte von Hyperebenen',
+      preprompt: 'Zwei Geraden in der Ebene können sich schneiden, parallel laufen oder zusammenfallen. Was sind die drei Fälle?',
+      body: 'Ein LGS $A\\mathbf{x} = \\mathbf{b}$ mit $A \\in \\mathbb{R}^{m \\times n}$ beschreibt $m$ **Hyperebenen** im $\\mathbb{R}^n$. Die Lösungsmenge ist ihr Schnitt:\n\n- **2 Geraden, 1 Schnittpunkt**: eindeutige Lösung\n- **2 parallele Geraden**: keine Lösung\n- **2 identische Geraden**: unendlich viele Lösungen\n\nFür $m > n$ (mehr Gleichungen als Unbekannte): überbestimmt — i.A. keine exakte Lösung.',
+    },
+    {
+      title: 'Matrixdarstellung und erweiterte Matrix',
+      body: 'Das LGS $A\\mathbf{x} = \\mathbf{b}$ mit $m$ Gleichungen, $n$ Unbekannten:\n\n$$\\begin{pmatrix}a_{11} & \\cdots & a_{1n}\\\\ \\vdots & \\ddots & \\vdots \\\\ a_{m1} & \\cdots & a_{mn}\\end{pmatrix} \\begin{pmatrix}x_1 \\\\ \\vdots \\\\ x_n\\end{pmatrix} = \\begin{pmatrix}b_1 \\\\ \\vdots \\\\ b_m\\end{pmatrix}$$\n\nDie **erweiterte Matrix** $[A | \\mathbf{b}]$ fasst beides zusammen und ist das Arbeitsmittel der Gauß-Elimination.',
+    },
+    {
+      title: 'Gauß-Elimination: elementare Zeilenoperationen',
+      body: 'Drei erlaubte Operationen, die die Lösungsmenge **nicht ändern**:\n\n1. **Skalierung**: $Z_i \\leftarrow c \\cdot Z_i$ ($c \\neq 0$)\n2. **Zeilenaddition**: $Z_i \\leftarrow Z_i + c \\cdot Z_j$\n3. **Zeilentausch**: $Z_i \\leftrightarrow Z_j$\n\nZiel: die erweiterte Matrix in **Zeilenstufenform** (oder reduzierte ZSF) bringen — alle Pivots stehen in Treppenform, darunter Nullen.',
+      miniExample: '$\\begin{pmatrix}2&1&|&5\\\\4&3&|&11\\end{pmatrix} \\xrightarrow{Z_2-2Z_1} \\begin{pmatrix}2&1&|&5\\\\0&1&|&1\\end{pmatrix}$ → Rücksubstitution: $x_2=1$, $x_1=2$.',
+    },
+    {
+      title: 'Pivot-Analyse und Lösungstypen',
+      body: 'Der **Rang** $r = \\text{rang}(A)$ = Anzahl der Pivots in der ZSF.\n\nDrei Lösungstypen für $A\\mathbf{x} = \\mathbf{b}$:\n\n| Bedingung | Lösungstyp |\n|---|---|\n| $\\text{rang}(A) = \\text{rang}([A|b]) = n$ | Eindeutige Lösung |\n| $\\text{rang}(A) = \\text{rang}([A|b]) < n$ | Unendlich viele |\n| $\\text{rang}(A) < \\text{rang}([A|b])$ | Keine Lösung |\n\n"Keine Lösung" entsteht, wenn eine Zeile zu $(0\\,0\\,|\\,c)$ mit $c \\neq 0$ wird — Widerspruch.',
+    },
+    {
+      title: 'Überbestimmte Systeme und Least Squares',
+      body: 'Für $m > n$ (mehr Gleichungen als Unbekannte) gibt es i.A. keine exakte Lösung.\n\n**Least-Squares-Lösung**: Minimiere den Fehler:\n\n$$\\hat{\\mathbf{w}} = \\arg\\min_w \\|A\\mathbf{w} - \\mathbf{b}\\|_2^2$$\n\n**Normalengleichung** (notwendige Bedingung, $\\nabla = 0$):\n\n$$A^T A \\hat{\\mathbf{w}} = A^T \\mathbf{b}$$\n\nDas ist ein LGS mit $(n \\times n)$-Matrix $A^T A$.',
+      selfCheck: 'Wann ist $A^T A$ invertierbar? Was bedeutet das für die Eindeutigkeit der Least-Squares-Lösung?',
+    },
+    {
+      title: 'ML: Lineare Regression als Least-Squares-LGS',
+      body: 'Lineare Regression: $X \\in \\mathbb{R}^{N \\times p}$ (Datenpunkte × Features), $\\mathbf{y} \\in \\mathbb{R}^N$ (Labels).\n\n**Normalengleichung**:\n\n$$X^T X \\hat{w} = X^T \\mathbf{y} \\qquad \\Rightarrow \\qquad \\hat{w} = (X^T X)^{-1} X^T \\mathbf{y}$$\n\n**Multikollinearität**: Wenn Features linear abhängig, ist $\\text{rang}(X^T X) < p$ → nicht invertierbar → unendlich viele Lösungen.\n\n**Ridge-Regularisierung** behebt das: $(X^T X + \\lambda I)^{-1} X^T \\mathbf{y}$ — addiert $\\lambda$ auf Diagonale, macht $\\det > 0$.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'NumPy: LGS lösen und lineare Regression',
+      lang: 'python',
+      code: `import numpy as np
+
+# --- 1. LGS direkt lösen: Ax = b ---
+A = np.array([[2.0, 1.0],
+              [1.0, 3.0]])
+b = np.array([5.0, 10.0])
+x = np.linalg.solve(A, b)   # x ≈ [1.0, 3.0]
+# Probe:
+print(np.allclose(A @ x, b))  # True
+
+# --- 2. Überbestimmtes System (Least Squares) ---
+# 4 Gleichungen, 2 Unbekannte: Ax ≈ b
+A_over = np.array([[1.0, 0.0],
+                   [1.0, 1.0],
+                   [0.0, 1.0],
+                   [1.0, 2.0]])
+b_over = np.array([1.0, 2.0, 1.0, 4.0])
+# Least Squares: minimiert ||Ax - b||^2
+x_ls, residuals, rank, sv = np.linalg.lstsq(A_over, b_over, rcond=None)
+print(f"Lösung: {x_ls}, Rang: {rank}")
+
+# --- 3. Normalengleichung der linearen Regression ---
+np.random.seed(42)
+N, p = 100, 3
+X = np.random.randn(N, p)
+y = X @ np.array([1.0, -0.5, 2.0]) + 0.1*np.random.randn(N)
+
+# Analytische Lösung via Normalengleichung
+XTX = X.T @ X                    # (p×p) symmetrisch, PSD
+XTy = X.T @ y                    # (p,)
+w_normal = np.linalg.solve(XTX, XTy)  # stabiler als np.linalg.inv(XTX) @ XTy
+
+# Ridge-Regularisierung (verhindert Singularität)
+lambda_reg = 1e-3
+w_ridge = np.linalg.solve(XTX + lambda_reg * np.eye(p), XTy)
+print(f"Normal: {w_normal}, Ridge: {w_ridge}")`,
+      annotation: '`np.linalg.solve(A, b)` löst $A\\mathbf{x} = \\mathbf{b}$ numerisch stabil (LU-Zerlegung). `np.linalg.lstsq` löst überbestimmte Systeme durch Minimierung von $\\|A\\mathbf{x} - \\mathbf{b}\\|_2^2$ — das ist die Normalengleichung. Verwende `solve` statt `inv(A) @ b` — es ist numerisch stabiler. Ridge-Regularisierung $+\\lambda I$ macht $X^T X$ immer invertierbar ($\\det > 0$) und verbessert die Konditionszahl.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Die Normalengleichung $X^T X w = X^T y$ minimiert $\\|Xw - y\\|_2^2$',
+      reasoning:
+        'Setze $f(w) = \\|Xw - y\\|_2^2 = (Xw-y)^T(Xw-y) = w^T X^T X w - 2 w^T X^T y + y^T y$. Gradient nach $w$: $\\nabla_w f = 2X^T X w - 2 X^T y$. Setze $\\nabla_w f = 0$: $X^T X w = X^T y$. Die zweite Ableitung ist $2X^T X \\succeq 0$ (PSD) — es ist tatsächlich ein Minimum.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: 'Gauß-Elimination ändert die Lösungsmenge des LGS',
+      correct: 'Elementare Zeilenoperationen ändern die Lösungsmenge nicht',
+      explanation: 'Zeilenoperationen entsprechen Äquivalenzumformungen: jede erlaubte Operation ist invertierbar. Die Lösungsmenge bleibt identisch — nur die Darstellung ändert sich.',
+    },
+    {
+      wrong: 'Ein überbestimmtes System ($m > n$) hat keine Lösung',
+      correct: 'Ein überbestimmtes System hat meist keine exakte Lösung, aber immer eine Least-Squares-Lösung',
+      explanation: 'Die Least-Squares-Lösung $\\hat{w} = \\arg\\min \\|Xw - y\\|_2^2$ existiert immer. Sie ist eindeutig, wenn $\\text{rang}(X) = n$ (linear unabhängige Features).',
+    },
+    {
+      wrong: 'Mehr Gleichungen als Unbekannte bedeutet mehr Information und immer eindeutige Lösung',
+      correct: 'Überbestimmte Systeme sind i.A. inkonsistent (keine exakte Lösung)',
+      explanation: 'Mehr Messungen als Unbekannte führen zu Widersprüchen, wenn die Daten verrauscht sind. Deshalb löst man im Least-Squares-Sinn: man findet die Lösung, die alle Gleichungen "am besten" erfüllt.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: '3Blue1Brown: "Nonsquare matrices as transformations between dimensions" (Essence of Linear Algebra)',
+      type: 'video',
+      note: 'Visualisierung von überbestimmten Systemen als Abbildungen in niedrigere/höhere Dimensionen',
+    },
+    {
+      title: 'MML Book, Kapitel 2.3.3: "Gaussian Elimination"',
+      type: 'book',
+      note: 'Rigoros; enthält auch Verbindung zu LU-Zerlegung und Pivoting für numerische Stabilität',
+    },
+    {
+      title: 'Strang, Gilbert: "Introduction to Linear Algebra", Kapitel 2 — Lösung linearer Systeme',
+      type: 'book',
+      note: 'Klassisches Standardwerk; hervorragende Darstellung von Gauß-Elimination und Rang',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.matrizen-lineare-abbildungen',
+      relation: 'requires',
+      hint: 'LGS als $A\\mathbf{x} = \\mathbf{b}$ setzt das Verständnis von Matrizen als lineare Abbildungen voraus.',
+    },
+    {
+      lessonId: 'p1.vektorraeume-basis-rang',
+      relation: 'extends',
+      hint: 'Rang, Nullraum und Spaltenraum formalisieren die Lösungstypen von LGS.',
+    },
+    {
+      lessonId: 'p1.inverse-transponierte',
+      relation: 'see-also',
+      hint: 'Die analytische Lösung $\\hat{w} = (X^T X)^{-1} X^T y$ nutzt die Inverse.',
+    },
+    {
+      lessonId: 'p1.determinante',
+      relation: 'see-also',
+      hint: 'Determinante = 0 ↔ LGS nicht eindeutig lösbar ↔ Matrix singulär.',
+    },
+  ],
+
+  reflection: 'Lineare Gleichungssysteme stecken überall in ML: Normalengleichungen, Newton-Verfahren, Least-Squares-Probleme. Das Erstaunliche: Gauß-Elimination aus dem 17. Jahrhundert ist immer noch der Kern moderner Numerik. **Welches der drei Szenarios überrascht dich am meisten: 0, 1 oder unendlich viele Lösungen?**',
 }

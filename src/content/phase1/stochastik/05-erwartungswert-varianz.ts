@@ -179,4 +179,173 @@ export const erwartungswertVarianz: Lesson = {
       conceptTags: ['bias-variance'],
     },
   ],
+
+  learningOutcome:
+    'Du kannst Erwartungswert und Varianz berechnen, die Linearitätsregel und Verschiebungsformel anwenden und erklären, wie Bias und Varianz eines Schätzers mit dem Erwartungswert-Kalkül zusammenhängen.',
+
+  description:
+    'Erwartungswert und Varianz sind die zwei wichtigsten Kenngrößen einer Zufallsvariablen — Lage und Streuung. In ML stecken sie in jedem Optimierungsschritt: der Gradient ist ein Schätzer (mit Bias und Varianz), Adam schätzt beide, und der Bias-Varianz-Trade-off beschreibt fundamentale Grenzen des Lernens.',
+
+  conceptSteps: [
+    {
+      title: 'Erwartungswert als gewichteter Durchschnitt',
+      preprompt: 'Du wirfst 1000 Mal einen fairen Würfel und berechnest den Durchschnitt. Was nähert sich der Durchschnitt mit wachsender Anzahl an?',
+      body: 'Der **Erwartungswert** $\\mathbb{E}[X]$ ist der langfristige Durchschnittswert:\n\n$$\\mathbb{E}[X] = \\sum_k k \\cdot P(X = k) \\quad \\text{(diskret)}$$\n\n$$\\mathbb{E}[X] = \\int_{-\\infty}^{\\infty} x \\cdot f(x)\\, dx \\quad \\text{(stetig)}$$\n\nDas Gesetz der großen Zahlen garantiert: $\\bar{X}_n \\to \\mathbb{E}[X]$ für $n \\to \\infty$.',
+      miniExample: 'Fairer Würfel: $\\mathbb{E}[X] = \\frac{1}{6}(1+2+3+4+5+6) = 3{,}5$. Kein Würfelwurf ergibt 3,5 — der Erwartungswert muss nicht im Wertebereich liegen.',
+      selfCheck: 'Kann der Erwartungswert außerhalb des Wertebereichs von $X$ liegen? (Ja — z.B. Würfel: 3,5 ist kein Augenwert.)',
+    },
+    {
+      title: 'Rechenregeln: Linearität des Erwartungswerts',
+      body: 'Die **Linearität** ist die wichtigste Eigenschaft des Erwartungswerts:\n\n$$\\mathbb{E}[aX + b] = a\\mathbb{E}[X] + b \\qquad \\text{(immer)}$$\n\n$$\\mathbb{E}[X + Y] = \\mathbb{E}[X] + \\mathbb{E}[Y] \\qquad \\text{(immer, auch abhängig!)}$$\n\n**Achtung**: $\\mathbb{E}[XY] = \\mathbb{E}[X] \\cdot \\mathbb{E}[Y]$ gilt **nur** bei Unabhängigkeit.\n\nDie Linearität gilt bedingungslos — auch bei abhängigen Zufallsvariablen.',
+      miniExample: '$\\mathbb{E}[3X + 2] = 3 \\cdot \\mathbb{E}[X] + 2$. Für Würfel: $3 \\cdot 3{,}5 + 2 = 12{,}5$.',
+      selfCheck: 'Warum gilt $\\mathbb{E}[X+Y] = \\mathbb{E}[X] + \\mathbb{E}[Y]$ auch für abhängige ZVn? (Definition: $\\mathbb{E}[X+Y] = \\int\\int (x+y) f(x,y) dx dy = \\int x f_X(x) dx + \\int y f_Y(y) dy$.)',
+    },
+    {
+      title: 'Varianz als Streuungsmaß',
+      body: 'Die **Varianz** misst die durchschnittliche quadratische Abweichung vom Erwartungswert:\n\n$$\\text{Var}(X) = \\mathbb{E}[(X - \\mathbb{E}[X])^2] = \\mathbb{E}[X^2] - (\\mathbb{E}[X])^2$$\n\nRechenregeln:\n$$\\text{Var}(aX + b) = a^2 \\text{Var}(X) \\qquad \\text{(Verschiebung ändert Varianz nicht!)}$$\n\n$$\\text{Var}(X + Y) = \\text{Var}(X) + \\text{Var}(Y) \\qquad \\text{(nur bei Unabhängigkeit)}$$',
+      miniExample: 'Würfel: $\\mathbb{E}[X^2] = \\frac{1}{6}(1+4+9+16+25+36) = \\frac{91}{6} \\approx 15{,}17$. $\\text{Var}(X) = 15{,}17 - 3{,}5^2 = 15{,}17 - 12{,}25 \\approx 2{,}92$.',
+    },
+    {
+      title: 'Standardabweichung und Kovarianz (Grundidee)',
+      body: 'Die **Standardabweichung** $\\text{SD}(X) = \\sqrt{\\text{Var}(X)}$ hat dieselbe Einheit wie $X$ — damit direkt interpretierbar.\n\nDie **Kovarianz** misst den linearen Zusammenhang zwischen zwei ZVn:\n\n$$\\text{Cov}(X, Y) = \\mathbb{E}[(X - \\mathbb{E}[X])(Y - \\mathbb{E}[Y])] = \\mathbb{E}[XY] - \\mathbb{E}[X]\\mathbb{E}[Y]$$\n\n$\\text{Cov}(X, Y) > 0$: tendieren zusammen zu steigen. $< 0$: gegenläufig. $= 0$: linear unkorreliert (nicht unbedingt unabhängig!).',
+      miniExample: '$X = Y$: $\\text{Cov}(X, X) = \\mathbb{E}[(X-\\mu)^2] = \\text{Var}(X)$. Die Kovarianzmatrix hat Varianzen auf der Diagonale.',
+      selfCheck: 'Warum ist Unkorreliertheit ($\\text{Cov}=0$) schwächer als Unabhängigkeit? ($X, Y$ können nichtlinear abhängig sein, obwohl $\\text{Cov}=0$.)',
+    },
+    {
+      title: 'ML: Bias und Varianz als $\\mathbb{E}[\\cdot]$ und $\\text{Var}[\\cdot]$',
+      body: 'Für ein Modell $\\hat{f}$ mit zufälligem Trainingsset $D$:\n\n$$\\text{Bias}[\\hat{f}(x)] = \\mathbb{E}_D[\\hat{f}(x)] - f(x)$$\n\nDer Bias ist der **systematische Fehler** — wie weit liegt der Erwartungswert der Vorhersage vom wahren Wert?\n\n$$\\text{Var}[\\hat{f}(x)] = \\mathbb{E}_D[(\\hat{f}(x) - \\mathbb{E}_D[\\hat{f}(x)])^2]$$\n\nDie Varianz ist die **Instabilität** — wie stark schwankt das Modell über verschiedene Trainingssets?\n\n**Gesamtfehler** = $\\text{Bias}^2 + \\text{Var} + \\sigma^2$ (irreduzibles Rauschen)',
+      selfCheck: 'Ein Modell gibt immer $\\hat{y} = 0$ aus. Was ist sein Bias, was seine Varianz? (Bias = $|\\mathbb{E}[\\hat{y}] - y| = |y|$; Varianz = 0 — kein Schwanken zwischen Trainingssets.)',
+    },
+    {
+      title: 'ML: Gradient-Varianz und Adam',
+      body: 'Der **Mini-Batch-Gradient** $g_B = \\frac{1}{B}\\sum_{i \\in \\mathcal{B}} \\nabla \\ell_i$ ist ein Schätzer des wahren Gradienten:\n\n$$\\mathbb{E}[g_B] = \\nabla \\mathcal{L} \\qquad \\text{(erwartungstreu)}$$\n\n$$\\text{Var}(g_B) = \\frac{\\sigma^2_g}{B} \\qquad \\text{(skaliert mit } 1/B\\text{)}$$\n\n**Adam** schätzt $\\mathbb{E}[g]$ und $\\mathbb{E}[g^2]$ (exponentielles Glätten):\n\n$$m_t = \\beta_1 m_{t-1} + (1-\\beta_1)g_t \\approx \\mathbb{E}[g_t]$$\n\n$$v_t = \\beta_2 v_{t-1} + (1-\\beta_2)g_t^2 \\approx \\mathbb{E}[g_t^2]$$\n\nEffektive Lernrate: $\\hat{m}_t / \\sqrt{\\hat{v}_t} \\approx \\mathbb{E}[g]/\\text{SD}(g)$ — normierter Gradient.',
+    },
+  ],
+
+  codeBridges: [
+    {
+      title: 'torch.mean / torch.var; Bias-Varianz-Analyse in Python',
+      lang: 'python',
+      code: `import torch
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+# --- Erwartungswert und Varianz mit Torch ---
+X = torch.tensor([1.0, 2.0, 3.0])
+probs = torch.tensor([0.2, 0.5, 0.3])
+
+E_X = (X * probs).sum()               # E[X] = 2.1
+E_X2 = (X**2 * probs).sum()           # E[X²] = 4.9
+var_X = E_X2 - E_X**2                 # Var(X) = 4.9 - 4.41 = 0.49
+print(f"E[X]={E_X:.2f}, Var(X)={var_X:.3f}")
+
+# --- Gradient-Varianz skaliert mit 1/B ---
+true_gradient = 2.0
+n_experiments = 1000
+for B in [1, 8, 64, 512]:
+    batch_grads = torch.normal(true_gradient, 1.0, (n_experiments, B))
+    avg_grads = batch_grads.mean(dim=1)  # Durchschnitt über Batch
+    print(f"B={B:4d}: Var(g_B) = {avg_grads.var():.4f}  (theory: {1/B:.4f})")
+
+# --- Bias-Varianz-Dekomposition empirisch ---
+def bias_variance_analysis(degree_list, n_trials=200, n_train=20):
+    np.random.seed(42)
+    x_test = np.linspace(0, 1, 100).reshape(-1, 1)
+    y_true = np.sin(2 * np.pi * x_test).ravel()
+
+    for degree in degree_list:
+        preds = []
+        for _ in range(n_trials):
+            x_train = np.random.rand(n_train, 1)
+            y_train = np.sin(2*np.pi*x_train).ravel() + np.random.normal(0, 0.1, n_train)
+            poly = PolynomialFeatures(degree)
+            model = LinearRegression().fit(poly.fit_transform(x_train), y_train)
+            preds.append(model.predict(poly.transform(x_test)))
+        preds = np.array(preds)
+        bias2 = ((preds.mean(axis=0) - y_true)**2).mean()
+        variance = preds.var(axis=0).mean()
+        print(f"Grad {degree}: Bias²={bias2:.4f}, Var={variance:.4f}, Total={bias2+variance:.4f}")
+
+bias_variance_analysis([1, 3, 10])`,
+      annotation: '`torch.var` berechnet die Stichprobenvarianz (Bessel-Korrektur, $n-1$). Für populationsbasierte Varianz: `torch.var(x, unbiased=False)`. Adam-Parameter $\\beta_1=0{,}9$ und $\\beta_2=0{,}999$ sind Standardwerte — sie kontrollieren, wie stark ältere Gradienten "vergessen" werden.',
+    },
+  ],
+
+  derivations: [
+    {
+      claim: 'Verschiebungsformel: $\\text{Var}(X) = \\mathbb{E}[X^2] - (\\mathbb{E}[X])^2$',
+      reasoning:
+        '$\\text{Var}(X) = \\mathbb{E}[(X-\\mu)^2]$ mit $\\mu = \\mathbb{E}[X]$. Ausklammern: $\\mathbb{E}[X^2 - 2\\mu X + \\mu^2] = \\mathbb{E}[X^2] - 2\\mu \\mathbb{E}[X] + \\mu^2 = \\mathbb{E}[X^2] - 2\\mu^2 + \\mu^2 = \\mathbb{E}[X^2] - \\mu^2 = \\mathbb{E}[X^2] - (\\mathbb{E}[X])^2$.',
+    },
+    {
+      claim: 'Mini-Batch-Gradient-Varianz: $\\text{Var}(g_B) = \\sigma^2/B$',
+      reasoning:
+        '$g_B = \\frac{1}{B}\\sum_{i=1}^B \\nabla \\ell_i$ mit unabhängigen $\\nabla \\ell_i$, $\\text{Var}(\\nabla \\ell_i) = \\sigma^2$. Dann: $\\text{Var}(g_B) = \\text{Var}(\\frac{1}{B}\\sum_i \\nabla \\ell_i) = \\frac{1}{B^2} \\cdot B \\cdot \\sigma^2 = \\frac{\\sigma^2}{B}$. Größerer Batch → kleinere Gradient-Varianz → stabileres Training, aber mehr Rechenaufwand pro Schritt.',
+    },
+  ],
+
+  commonMistakes: [
+    {
+      wrong: '$\\mathbb{E}[XY] = \\mathbb{E}[X] \\cdot \\mathbb{E}[Y]$ gilt immer',
+      correct: '$\\mathbb{E}[XY] = \\mathbb{E}[X] \\cdot \\mathbb{E}[Y]$ gilt nur bei **Unabhängigkeit**',
+      explanation:
+        'Für abhängige ZVn gilt nur $\\mathbb{E}[X+Y] = \\mathbb{E}[X] + \\mathbb{E}[Y]$ (Linearität). Das Produkt ist komplizierter: $\\mathbb{E}[XY] = \\mathbb{E}[X]\\mathbb{E}[Y] + \\text{Cov}(X,Y)$.',
+    },
+    {
+      wrong: 'Unkorreliert ($\\text{Cov}(X,Y) = 0$) bedeutet unabhängig',
+      correct: 'Unabhängigkeit impliziert Unkorreliertheit, aber nicht umgekehrt',
+      explanation:
+        'Gegenbeispiel: $X \\sim \\text{Uniform}(-1,1)$, $Y = X^2$. Dann $\\text{Cov}(X, Y) = \\mathbb{E}[X \\cdot X^2] - \\mathbb{E}[X]\\mathbb{E}[X^2] = 0$ (wegen Symmetrie), aber $Y$ hängt vollständig von $X$ ab.',
+    },
+    {
+      wrong: 'Varianz ändert sich bei Verschiebung: $\\text{Var}(X+5) > \\text{Var}(X)$',
+      correct: '$\\text{Var}(X+b) = \\text{Var}(X)$ — additive Konstanten ändern die Varianz nicht',
+      explanation:
+        'Varianz misst Streuung um den Mittelwert. Verschiebung bewegt Mittelwert mit, Streuung bleibt gleich. Nur Skalierung ändert Varianz: $\\text{Var}(aX) = a^2 \\text{Var}(X)$.',
+    },
+  ],
+
+  furtherResources: [
+    {
+      title: 'StatQuest: "Bias and Variance" (YouTube)',
+      type: 'video',
+      note: 'Klare visuelle Erklärung der Bias-Varianz-Dekomposition mit Bullseye-Analogie',
+    },
+    {
+      title: 'MML Book, Kapitel 6.4: "Moments of a Distribution"',
+      type: 'book',
+      note: 'Erwartungswert, Varianz und höhere Momente; Verbindung zu ML-Schätzern',
+    },
+    {
+      title: 'Goodfellow et al., Kapitel 5.4: "Estimators, Bias and Variance"',
+      type: 'book',
+      note: 'Deep Learning Book; freier Online-Zugang; direkte ML-Perspektive',
+    },
+  ],
+
+  crossLinks: [
+    {
+      lessonId: 'p1.zufallsvariablen',
+      relation: 'requires',
+      hint: 'Zufallsvariablen sind die Objekte, auf die Erwartungswert und Varianz angewendet werden.',
+    },
+    {
+      lessonId: 'p1.kovarianz-multivariate-gauss',
+      relation: 'extends',
+      hint: 'Kovarianzmatrix $\\Sigma$ verallgemeinert Var$(X)$ auf mehrere ZVn — Lektion 06.',
+    },
+    {
+      lessonId: 'p1.map-regularisierung-bias-variance',
+      relation: 'extends',
+      hint: 'Bias-Varianz-Tradeoff wird in Lektion 10 mit MAP-Regularisierung verbunden.',
+    },
+    {
+      lessonId: 'p1.mle',
+      relation: 'see-also',
+      hint: 'MLE-Schätzer sind erwartungstreu für viele Modelle — Bias = 0, aber Varianz kann hoch sein.',
+    },
+  ],
+
+  reflection: 'Erwartungswert und Varianz sind mehr als Kenngrößen — sie sind Operatoren, die den Kern des Lernens beschreiben. Der Bias-Varianz-Tradeoff ist nicht akademisch: er erklärt, warum größere Modelle ohne Regularisierung überanpassen. **Was hat dich mehr überrascht: dass Linearität des Erwartungswerts auch für abhängige ZVn gilt, oder der 1/B-Skalierungseffekt für Gradienten?**',
 }
