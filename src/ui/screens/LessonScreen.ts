@@ -595,7 +595,7 @@ function renderConceptStep(
         ${visualHtml}
         ${miniExHtml}
         ${selfCheckHtml}
-        ${isLast ? mistakesExtraHtml : ''}
+        ${isLast && mistakesExtraHtml ? `<hr class="border-surface-700 my-5">${mistakesExtraHtml}` : ''}
       </div>
       <div class="action-bar">
         <button id="next-btn" class="btn-primary w-full no-tap-highlight active:scale-95 transition-transform">
